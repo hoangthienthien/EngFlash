@@ -40,16 +40,14 @@ import com.example.engflash.ui.theme.GradientStart
 fun LoginScreen(
     viewModel: AuthViewModel,
     onNavigateToRegister: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     val loginState by viewModel.loginState.collectAsState()
-    val resetPasswordState by viewModel.resetPasswordState.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var showForgotPasswordDialog by remember { mutableStateOf(false) }
-    var resetEmail by remember { mutableStateOf("") }
 
     val focusManager = LocalFocusManager.current
 
@@ -182,10 +180,7 @@ fun LoginScreen(
                             .padding(top = 8.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(onClick = {
-                            resetEmail = email
-                            showForgotPasswordDialog = true
-                        }) {
+                        TextButton(onClick = onNavigateToForgotPassword) {
                             Text(
                                 "Quên mật khẩu?",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -269,88 +264,6 @@ fun LoginScreen(
                     }
                 }
             }
-        }
-
-        // ─── Forgot Password Dialog ──────────────────────
-        if (showForgotPasswordDialog) {
-            AlertDialog(
-                onDismissRequest = {
-                    showForgotPasswordDialog = false
-                    viewModel.resetResetPasswordState()
-                },
-                title = { Text("Quên mật khẩu") },
-                text = {
-                    Column {
-                        when (resetPasswordState) {
-                            is ResetPasswordState.Success -> {
-                                Text(
-                                    "✅ Đã gửi email đặt lại mật khẩu! Vui lòng kiểm tra hộp thư của bạn.",
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                            is ResetPasswordState.Error -> {
-                                Text(
-                                    (resetPasswordState as ResetPasswordState.Error).message,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                OutlinedTextField(
-                                    value = resetEmail,
-                                    onValueChange = { resetEmail = it },
-                                    label = { Text("Email") },
-                                    singleLine = true,
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                            else -> {
-                                Text("Nhập email để nhận link đặt lại mật khẩu:")
-                                Spacer(modifier = Modifier.height(12.dp))
-                                OutlinedTextField(
-                                    value = resetEmail,
-                                    onValueChange = { resetEmail = it },
-                                    label = { Text("Email") },
-                                    singleLine = true,
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    }
-                },
-                confirmButton = {
-                    if (resetPasswordState is ResetPasswordState.Success) {
-                        TextButton(onClick = {
-                            showForgotPasswordDialog = false
-                            viewModel.resetResetPasswordState()
-                        }) {
-                            Text("Đóng")
-                        }
-                    } else {
-                        TextButton(
-                            onClick = { viewModel.sendPasswordResetEmail(resetEmail.trim()) },
-                            enabled = resetEmail.isNotBlank()
-                                    && resetPasswordState !is ResetPasswordState.Loading
-                        ) {
-                            if (resetPasswordState is ResetPasswordState.Loading) {
-                                CircularProgressIndicator(modifier = Modifier.size(18.dp))
-                            } else {
-                                Text("Gửi")
-                            }
-                        }
-                    }
-                },
-                dismissButton = {
-                    if (resetPasswordState !is ResetPasswordState.Success) {
-                        TextButton(onClick = {
-                            showForgotPasswordDialog = false
-                            viewModel.resetResetPasswordState()
-                        }) {
-                            Text("Huỷ")
-                        }
-                    }
-                }
-            )
         }
     }
 }

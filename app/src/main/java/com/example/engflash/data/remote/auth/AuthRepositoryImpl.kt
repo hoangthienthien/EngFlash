@@ -1,5 +1,6 @@
 package com.example.engflash.data.remote.auth
 
+import com.example.engflash.data.remote.email.EmailSender
 import com.example.engflash.domain.model.User
 import com.example.engflash.domain.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -9,6 +10,7 @@ import kotlinx.coroutines.tasks.await
 class AuthRepositoryImpl : AuthRepository {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val emailSender: EmailSender = EmailSender()
 
     override suspend fun login(email: String, password: String): Result<User> {
         return try {
@@ -60,6 +62,10 @@ class AuthRepositoryImpl : AuthRepository {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun sendOtpEmail(email: String, otp: String): Result<Unit> {
+        return emailSender.sendOtpEmail(email, otp)
     }
 
     override fun logout() {

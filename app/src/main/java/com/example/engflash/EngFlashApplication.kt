@@ -15,6 +15,7 @@ import com.example.engflash.domain.usecase.auth.IsLoggedInUseCase
 import com.example.engflash.domain.usecase.auth.LoginUseCase
 import com.example.engflash.domain.usecase.auth.LogoutUseCase
 import com.example.engflash.domain.usecase.auth.RegisterUseCase
+import com.example.engflash.domain.usecase.auth.SendOtpEmailUseCase
 import com.example.engflash.domain.usecase.auth.SendPasswordResetEmailUseCase
 import com.example.engflash.domain.usecase.grammar.GetGrammarByIdUseCase
 import com.example.engflash.domain.usecase.grammar.GetGrammarByTopicUseCase
@@ -62,6 +63,10 @@ class EngFlashApplication : Application() {
 
     val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase by lazy {
         SendPasswordResetEmailUseCase(authRepository)
+    }
+
+    val sendOtpEmailUseCase: SendOtpEmailUseCase by lazy {
+        SendOtpEmailUseCase(authRepository)
     }
 
     val logoutUseCase: LogoutUseCase by lazy {
