@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.engflash.ui.auth.AuthViewModel
+import com.example.engflash.ui.auth.ForgotPasswordScreen
 import com.example.engflash.ui.auth.LoginScreen
 import com.example.engflash.ui.auth.RegisterScreen
 import com.example.engflash.ui.grammar.GrammarDetailScreen
@@ -41,6 +42,9 @@ fun NavGraph(
                 onNavigateToRegister = {
                     navController.navigate(Routes.REGISTER)
                 },
+                onNavigateToForgotPassword = {
+                    navController.navigate(Routes.FORGOT_PASSWORD)
+                },
                 onLoginSuccess = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
@@ -59,6 +63,15 @@ fun NavGraph(
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable(Routes.FORGOT_PASSWORD) {
+            ForgotPasswordScreen(
+                viewModel = authViewModel,
+                onBackToLogin = {
+                    navController.popBackStack()
                 }
             )
         }

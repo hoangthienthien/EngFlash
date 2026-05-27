@@ -6,6 +6,7 @@ package com.example.engflash.ui.navigation
 object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val FORGOT_PASSWORD = "forgot_password"
     const val HOME = "home"
     const val GRAMMAR_TOPIC_LIST = "grammar_topic_list"
     const val GRAMMAR_LIST = "grammar_list/{topicId}"

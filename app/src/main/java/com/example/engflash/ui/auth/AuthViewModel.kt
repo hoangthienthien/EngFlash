@@ -10,6 +10,7 @@ import com.example.engflash.domain.usecase.auth.IsLoggedInUseCase
 import com.example.engflash.domain.usecase.auth.LoginUseCase
 import com.example.engflash.domain.usecase.auth.LogoutUseCase
 import com.example.engflash.domain.usecase.auth.RegisterUseCase
+import com.example.engflash.domain.usecase.auth.SendOtpEmailUseCase
 import com.example.engflash.domain.usecase.auth.SendPasswordResetEmailUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +37,19 @@ sealed class ResetPasswordState {
     data class Error(val message: String) : ResetPasswordState()
 }
 
+/**
+ * Trạng thái riêng cho chức năng gửi và xác thực OTP.
+ */
+sealed class OtpState {
+    object Idle : OtpState()
+    object Loading : OtpState()
+    object Sent : OtpState()
+    object Verified : OtpState()
+    object EnterNewPassword : OtpState()
+    object SuccessResetLink : OtpState()
+    data class Error(val message: String) : OtpState()
+}
+
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     // ─── UseCases (nhận qua Application thay vì Repository trực tiếp) ─
@@ -43,6 +57,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val loginUseCase: LoginUseCase = app.loginUseCase
     private val registerUseCase: RegisterUseCase = app.registerUseCase
     private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase = app.sendPasswordResetEmailUseCase
+    private val sendOtpEmailUseCase: SendOtpEmailUseCase = app.sendOtpEmailUseCase
     private val logoutUseCase: LogoutUseCase = app.logoutUseCase
     private val getCurrentUserUseCase: GetCurrentUserUseCase = app.getCurrentUserUseCase
     private val isLoggedInUseCase: IsLoggedInUseCase = app.isLoggedInUseCase
@@ -58,6 +73,17 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     // ─── Reset Password State ────────────────────────────
     private val _resetPasswordState = MutableStateFlow<ResetPasswordState>(ResetPasswordState.Idle)
     val resetPasswordState: StateFlow<ResetPasswordState> = _resetPasswordState.asStateFlow()
+
+    // ─── OTP State ───────────────────────────────────────
+    private val _otpState = MutableStateFlow<OtpState>(OtpState.Idle)
+    val otpState: StateFlow<OtpState> = _otpState.asStateFlow()
+
+    private val _countdown = MutableStateFlow(0)
+    val countdown: StateFlow<Int> = _countdown.asStateFlow()
+
+    private var generatedOtp: String? = null
+    var otpEmail: String = ""
+        private set
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
@@ -94,6 +120,111 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetResetPasswordState() {
         _resetPasswordState.value = ResetPasswordState.Idle
+    }
+
+    // ─── OTP Business Logic ────────────────────────────────
+    fun sendOtp(email: String) {
+        if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _otpState.value = OtpState.Error("Email không đúng định dạng")
+            return
+        }
+        
+        viewModelScope.launch {
+            _otpState.value = OtpState.Loading
+            
+            try {
+                // Sinh mã OTP 6 số ngẫu nhiên
+                val otp = (100000..999999).random().toString()
+                android.util.Log.d("AuthViewModel", "DEBUG: Generated OTP for $email is $otp")
+                
+                val result = sendOtpEmailUseCase(email, otp)
+                result.fold(
+                    onSuccess = {
+                        generatedOtp = otp
+                        otpEmail = email
+                        _otpState.value = OtpState.Sent
+                        startCountdown()
+                    },
+                    onFailure = { e ->
+                        android.util.Log.e("AuthViewModel", "Lỗi gửi OTP: ${e.message}", e)
+                        _otpState.value = OtpState.Error("Không thể gửi email OTP. Vui lòng thử lại.")
+                    }
+                )
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Exception gửi OTP: ${e.message}", e)
+                _otpState.value = OtpState.Error("Đã xảy ra lỗi: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun verifyOtp(enteredOtp: String) {
+        if (enteredOtp.length != 6) {
+            _otpState.value = OtpState.Error("Mã OTP phải có 6 chữ số")
+            return
+        }
+
+        if (generatedOtp == null || otpEmail.isBlank()) {
+            _otpState.value = OtpState.Error("Phiên xác thực đã hết hạn, vui lòng gửi lại mã")
+            return
+        }
+
+        if (enteredOtp == generatedOtp) {
+            // OTP đúng → chuyển sang bước nhập mật khẩu mới
+            _otpState.value = OtpState.EnterNewPassword
+        } else {
+            _otpState.value = OtpState.Error("Mã xác thực OTP không chính xác")
+        }
+    }
+
+    fun submitNewPassword(newPassword: String, confirmPassword: String) {
+        if (newPassword.length < 6) {
+            _otpState.value = OtpState.Error("Mật khẩu phải có ít nhất 6 ký tự")
+            return
+        }
+        if (newPassword != confirmPassword) {
+            _otpState.value = OtpState.Error("Mật khẩu xác nhận không khớp")
+            return
+        }
+
+        viewModelScope.launch {
+            _otpState.value = OtpState.Loading
+            try {
+                val result = sendPasswordResetEmailUseCase(otpEmail)
+                result.fold(
+                    onSuccess = {
+                        _otpState.value = OtpState.SuccessResetLink
+                    },
+                    onFailure = {
+                        _otpState.value = OtpState.Error("Lỗi: ${mapFirebaseError(it)}")
+                    }
+                )
+            } catch (e: Exception) {
+                _otpState.value = OtpState.Error("Đã xảy ra lỗi: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun resendOtp() {
+        if (otpEmail.isNotBlank() && _countdown.value == 0) {
+            sendOtp(otpEmail)
+        }
+    }
+
+    fun resetOtpState() {
+        _otpState.value = OtpState.Idle
+        _countdown.value = 0
+        generatedOtp = null
+        otpEmail = ""
+    }
+
+    private fun startCountdown() {
+        _countdown.value = 60
+        viewModelScope.launch {
+            while (_countdown.value > 0) {
+                kotlinx.coroutines.delay(1000)
+                _countdown.value -= 1
+            }
+        }
     }
 
     fun logout() {
