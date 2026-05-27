@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "978154298698",
+    "project_id": "my-eng-app-bd482",
+    "storage_bucket": "my-eng-app-bd482.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978154298698:android:2d9d6c13b8be885a67b5b3",
+        "android_client_info": {
+          "package_name": "com.example.engflash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDauQnvSbZ4MkwnHr4yrwLUde6vzY1CuY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

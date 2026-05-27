@@ -1,0 +1,288 @@
+{
+  "topics": [
+    {
+      "id": "basic_tenses",
+      "name": "Các Thì Cơ Bản",
+      "description": "Nắm vững các thì hiện tại trong tiếng Anh: Hiện tại đơn, tiếp diễn và hoàn thành",
+      "iconName": "schedule",
+      "orderIndex": 0,
+      "totalLessons": 3
+    },
+    {
+      "id": "conditionals",
+      "name": "Câu Điều Kiện",
+      "description": "Học cách sử dụng các loại câu điều kiện: Loại 0, loại 1 và loại 2",
+      "iconName": "account_tree",
+      "orderIndex": 1,
+      "totalLessons": 3
+    }
+  ],
+  "grammarRules": [
+    {
+      "id": "basic_tenses_0",
+      "topicId": "basic_tenses",
+      "title": "Thì Hiện Tại Đơn (Present Simple)",
+      "explanation": "Thì hiện tại đơn (Present Simple) là thì cơ bản nhất trong tiếng Anh, được sử dụng để diễn tả các hành động lặp đi lặp lại theo thói quen, các sự thật hiển nhiên, hoặc các sự kiện diễn ra theo lịch trình cố định. Đây là thì đầu tiên mà người học tiếng Anh cần nắm vững.",
+      "structure": "✅ Khẳng định: S + V(s/es) + O\n❌ Phủ định: S + do/does + not + V(nguyên thể) + O\n❓ Nghi vấn: Do/Does + S + V(nguyên thể) + O?",
+      "usage": [
+        "Diễn tả thói quen, hành động lặp đi lặp lại hàng ngày",
+        "Diễn tả sự thật hiển nhiên, chân lý khoa học",
+        "Diễn tả lịch trình, thời gian biểu cố định (tàu, xe buýt, lớp học...)",
+        "Dùng trong mệnh đề thời gian (when, after, before...) và mệnh đề điều kiện loại 1"
+      ],
+      "examples": [
+        {"english": "I go to school every day.", "vietnamese": "Tôi đi học mỗi ngày."},
+        {"english": "The sun rises in the east.", "vietnamese": "Mặt trời mọc ở phía đông."},
+        {"english": "She doesn't like coffee.", "vietnamese": "Cô ấy không thích cà phê."},
+        {"english": "Do you speak English?", "vietnamese": "Bạn có nói tiếng Anh không?"},
+        {"english": "The train leaves at 8 AM tomorrow.", "vietnamese": "Chuyến tàu khởi hành lúc 8 giờ sáng mai."}
+      ],
+      "notes": "📌 Dấu hiệu nhận biết: always, usually, often, sometimes, rarely, never, every day/week/month/year, on Mondays...\n\n⚠️ Lưu ý: Thêm 's/es' cho động từ khi chủ ngữ là ngôi thứ 3 số ít (he, she, it).\n- Thêm 'es' nếu động từ tận cùng là: o, s, x, z, ch, sh.\n- Đổi 'y' thành 'ies' nếu trước 'y' là phụ âm.",
+      "orderIndex": 0,
+      "questions": [
+        {
+          "id": "q_present_simple_1",
+          "questionText": "Water ___ at 100 degrees Celsius.",
+          "options": ["boil", "boils", "is boiling", "boiled"],
+          "correctAnswerIndex": 1,
+          "explanation": "Sự thật hiển nhiên (nước sôi ở 100 độ C) được diễn tả bằng thì hiện tại đơn. Chủ ngữ 'Water' là danh từ không đếm được (tương đương ngôi thứ ba số ít), do đó động từ 'boil' thêm 's' thành 'boils'."
+        },
+        {
+          "id": "q_present_simple_2",
+          "questionText": "They ___ usually ___ coffee in the morning.",
+          "options": ["don't / drink", "doesn't / drink", "don't / drinks", "not / drink"],
+          "correctAnswerIndex": 0,
+          "explanation": "Với chủ ngữ 'They' ở dạng phủ định thì hiện tại đơn, ta sử dụng trợ động từ 'do not' ('don't') đi kèm động từ nguyên thể 'drink'."
+        },
+        {
+          "id": "q_present_simple_3",
+          "questionText": "___ your father work in a hospital?",
+          "options": ["Do", "Is", "Does", "Are"],
+          "correctAnswerIndex": 2,
+          "explanation": "Trong câu hỏi thì hiện tại đơn với chủ ngữ số ít 'your father' (bố của bạn - tương đương he), ta dùng trợ động từ 'Does' đứng đầu câu."
+        }
+      ]
+    },
+    {
+      "id": "basic_tenses_1",
+      "topicId": "basic_tenses",
+      "title": "Thì Hiện Tại Tiếp Diễn (Present Continuous)",
+      "explanation": "Thì hiện tại tiếp diễn (Present Continuous) dùng để diễn tả hành động đang xảy ra tại thời điểm nói, hoặc hành động đang diễn ra trong một khoảng thời gian hiện tại (không nhất thiết ngay lúc nói). Thì này cũng được dùng để diễn tả kế hoạch đã được sắp xếp trong tương lai gần.",
+      "structure": "✅ Khẳng định: S + am/is/are + V-ing + O\n❌ Phủ định: S + am/is/are + not + V-ing + O\n❓ Nghi vấn: Am/Is/Are + S + V-ing + O?",
+      "usage": [
+        "Diễn tả hành động đang xảy ra ngay tại thời điểm nói",
+        "Diễn tả hành động đang diễn ra xung quanh thời điểm nói (không nhất thiết ngay lúc nói)",
+        "Diễn tả kế hoạch chắc chắn sẽ xảy ra trong tương lai gần",
+        "Diễn tả sự phàn nàn với 'always' (luôn luôn làm gì đó — mang tính tiêu cực)"
+      ],
+      "examples": [
+        {"english": "I am studying English right now.", "vietnamese": "Tôi đang học tiếng Anh ngay bây giờ."},
+        {"english": "She is reading a book at the moment.", "vietnamese": "Cô ấy đang đọc sách lúc này."},
+        {"english": "We are meeting the client tomorrow.", "vietnamese": "Chúng tôi sẽ gặp khách hàng vào ngày mai."},
+        {"english": "He is always coming late!", "vietnamese": "Anh ấy luôn luôn đến trễ!"},
+        {"english": "They aren't watching TV now.", "vietnamese": "Họ không đang xem TV bây giờ."}
+      ],
+      "notes": "📌 Dấu hiệu nhận biết: now, right now, at the moment, at present, currently, Look!, Listen!...\n\n⚠️ Lưu ý: Một số động từ KHÔNG dùng ở thì tiếp diễn (stative verbs): know, understand, believe, love, hate, want, need, prefer, belong, own...\n- Sai: I am knowing the answer.\n- Đúng: I know the answer.",
+      "orderIndex": 1,
+      "questions": [
+        {
+          "id": "q_present_cont_1",
+          "questionText": "Listen! The baby ___.",
+          "options": ["cries", "is crying", "cry", "crying"],
+          "correctAnswerIndex": 1,
+          "explanation": "Trạng từ chỉ định 'Listen!' (Hãy nghe kìa!) báo hiệu một hành động đang diễn ra ngay tại thời điểm nói, do đó ta dùng thì hiện tại tiếp diễn: S + am/is/are + V-ing."
+        },
+        {
+          "id": "q_present_cont_2",
+          "questionText": "We ___ a meeting with the client at 2 PM tomorrow.",
+          "options": ["have", "are having", "had", "are have"],
+          "correctAnswerIndex": 1,
+          "explanation": "Thì hiện tại tiếp diễn dùng để diễn tả một kế hoạch hoặc sự kiện đã được sắp xếp trước trong tương lai gần (gặp đối tác vào 2h chiều mai)."
+        },
+        {
+          "id": "q_present_cont_3",
+          "questionText": "Why ___ you ___ always coming late? It's so annoying!",
+          "options": ["do / coming", "are / came", "are / coming", "do / come"],
+          "correctAnswerIndex": 2,
+          "explanation": "Cấu trúc 'S + am/is/are + always + V-ing' được dùng để diễn tả sự phàn nàn, bực mình về một hành động lặp đi lặp lại thường xuyên."
+        }
+      ]
+    },
+    {
+      "id": "basic_tenses_2",
+      "topicId": "basic_tenses",
+      "title": "Thì Hiện Tại Hoàn Thành (Present Perfect)",
+      "explanation": "Thì hiện tại hoàn thành (Present Perfect) dùng để diễn tả hành động đã xảy ra trong quá khứ nhưng có kết quả hoặc liên quan đến hiện tại. Thì này nhấn mạnh kết quả hoặc kinh nghiệm, không quan tâm đến thời điểm cụ thể.",
+      "structure": "✅ Khẳng định: S + have/has + V3 (past participle) + O\n❌ Phủ định: S + have/has + not + V3 + O\n❓ Nghi vấn: Have/Has + S + V3 + O?",
+      "usage": [
+        "Diễn tả hành động đã xảy ra trong quá khứ, không rõ thời gian, kết quả còn ở hiện tại",
+        "Diễn tả kinh nghiệm, trải nghiệm (đã từng / chưa từng)",
+        "Diễn tả hành động bắt đầu trong quá khứ và kéo dài đến hiện tại (dùng với since/for)",
+        "Diễn tả hành động vừa mới xảy ra (just, recently, lately)"
+      ],
+      "examples": [
+        {"english": "I have visited Paris twice.", "vietnamese": "Tôi đã đến Paris hai lần."},
+        {"english": "She has lived here since 2020.", "vietnamese": "Cô ấy đã sống ở đây từ năm 2020."},
+        {"english": "Have you ever eaten sushi?", "vietnamese": "Bạn đã bao giờ ăn sushi chưa?"},
+        {"english": "He has just finished his homework.", "vietnamese": "Anh ấy vừa mới hoàn thành bài tập."},
+        {"english": "We haven't seen that movie yet.", "vietnamese": "Chúng tôi vẫn chưa xem bộ phim đó."}
+      ],
+      "notes": "📌 Dấu hiệu nhận biết: already, yet, just, ever, never, recently, lately, since, for, so far, up to now, until now...\n\n⚠️ Phân biệt 'since' và 'for':\n- Since + mốc thời gian: since 2020, since Monday, since I was a child\n- For + khoảng thời gian: for 3 years, for a long time, for 2 hours",
+      "orderIndex": 2,
+      "questions": [
+        {
+          "id": "q_present_perf_1",
+          "questionText": "She ___ here since she graduated from university.",
+          "options": ["has worked", "worked", "works", "is working"],
+          "correctAnswerIndex": 0,
+          "explanation": "Diễn tả hành động bắt đầu từ quá khứ và kéo dài đến hiện tại, có mốc thời gian bắt đầu sau 'since' (kể từ khi tốt nghiệp), ta dùng thì hiện tại hoàn thành: S + have/has + V3."
+        },
+        {
+          "id": "q_present_perf_2",
+          "questionText": "___ you ever ___ sushi before?",
+          "options": ["Did / eat", "Have / eaten", "Has / eaten", "Do / eat"],
+          "correctAnswerIndex": 1,
+          "explanation": "Câu hỏi về kinh nghiệm, trải nghiệm ('đã từng làm gì chưa') dùng thì hiện tại hoàn thành. Với chủ ngữ 'you', ta dùng 'Have' và động từ cột 3 'eaten'."
+        },
+        {
+          "id": "q_present_perf_3",
+          "questionText": "I can't go inside because I ___ my keys.",
+          "options": ["lost", "have lost", "lose", "am losing"],
+          "correctAnswerIndex": 1,
+          "explanation": "Hành động xảy ra trong quá khứ nhưng có kết quả/hậu quả liên quan trực tiếp đến hiện tại (bây giờ không vào nhà được vì đã mất chìa khóa), ta dùng thì hiện tại hoàn thành."
+        }
+      ]
+    },
+    {
+      "id": "conditionals_0",
+      "topicId": "conditionals",
+      "title": "Câu Điều Kiện Loại 0 (Zero Conditional)",
+      "explanation": "Câu điều kiện loại 0 (Zero Conditional) dùng để diễn tả sự thật hiển nhiên, quy luật tự nhiên, hoặc kết quả tất yếu xảy ra khi điều kiện được đáp ứng. Cả mệnh đề điều kiện và mệnh đề kết quả đều dùng thì hiện tại đơn.",
+      "structure": "If + S + V (hiện tại đơn), S + V (hiện tại đơn)\n\nHoặc đảo: S + V (hiện tại đơn) + if + S + V (hiện tại đơn)",
+      "usage": [
+        "Diễn tả sự thật hiển nhiên, quy luật tự nhiên",
+        "Diễn tả kết quả tất yếu, luôn đúng khi điều kiện xảy ra",
+        "Dùng trong hướng dẫn, chỉ dẫn chung"
+      ],
+      "examples": [
+        {"english": "If you heat water to 100°C, it boils.", "vietnamese": "Nếu bạn đun nước đến 100°C, nó sôi."},
+        {"english": "If it rains, the ground gets wet.", "vietnamese": "Nếu trời mưa, mặt đất bị ướt."},
+        {"english": "Plants die if they don't get water.", "vietnamese": "Cây chết nếu chúng không có nước."},
+        {"english": "If you mix red and blue, you get purple.", "vietnamese": "Nếu bạn trộn đỏ và xanh, bạn được màu tím."}
+      ],
+      "notes": "📌 Có thể thay 'if' bằng 'when' vì kết quả luôn đúng.\n\n⚠️ Lưu ý: Câu điều kiện loại 0 khác loại 1 ở chỗ: loại 0 nói về sự thật chung, loại 1 nói về tình huống có thể xảy ra trong tương lai.",
+      "orderIndex": 0,
+      "questions": [
+        {
+          "id": "q_cond_0_1",
+          "questionText": "If you ___ red and yellow, you ___ orange.",
+          "options": ["mix / get", "mixes / gets", "mixed / would get", "will mix / get"],
+          "correctAnswerIndex": 0,
+          "explanation": "Sự thật khoa học hiển nhiên (trộn đỏ và vàng ra màu cam) được diễn tả bằng câu điều kiện loại 0. Cả hai vế điều kiện và kết quả đều chia ở thì hiện tại đơn."
+        },
+        {
+          "id": "q_cond_0_2",
+          "questionText": "Ice melts if you ___ it.",
+          "options": ["will heat", "heat", "heats", "heated"],
+          "correctAnswerIndex": 1,
+          "explanation": "Quy luật tự nhiên (đá tan khi đun nóng) dùng câu điều kiện loại 0. Với chủ ngữ 'you', động từ ở hiện tại đơn chia ở dạng nguyên thể 'heat'."
+        },
+        {
+          "id": "q_cond_0_3",
+          "questionText": "When it rains, the grass ___ wet.",
+          "options": ["gets", "get", "will get", "got"],
+          "correctAnswerIndex": 0,
+          "explanation": "Câu điều kiện loại 0 diễn tả sự thật luôn đúng. Trạng từ 'when' có thể thay thế cho 'if'. Với chủ ngữ số ít 'the grass', động từ 'get' thêm 's' thành 'gets'."
+        }
+      ]
+    },
+    {
+      "id": "conditionals_1",
+      "topicId": "conditionals",
+      "title": "Câu Điều Kiện Loại 1 (First Conditional)",
+      "explanation": "Câu điều kiện loại 1 (First Conditional) dùng để diễn tả tình huống có thể xảy ra trong tương lai và kết quả có khả năng thực hiện. Điều kiện là có thật và có khả năng xảy ra.",
+      "structure": "If + S + V (hiện tại đơn), S + will/can/may + V (nguyên thể)\n\nHoặc đảo: S + will + V + if + S + V (hiện tại đơn)",
+      "usage": [
+        "Diễn tả tình huống có thể xảy ra trong hiện tại hoặc tương lai",
+        "Đưa ra lời cảnh báo hoặc đe dọa",
+        "Đưa ra lời hứa hoặc đề nghị",
+        "Đưa ra lời khuyên"
+      ],
+      "examples": [
+        {"english": "If it rains tomorrow, I will stay home.", "vietnamese": "Nếu ngày mai trời mưa, tôi sẽ ở nhà."},
+        {"english": "If you study hard, you will pass the exam.", "vietnamese": "Nếu bạn học chăm chỉ, bạn sẽ đậu kỳ thi."},
+        {"english": "I will help you if you ask me.", "vietnamese": "Tôi sẽ giúp bạn nếu bạn nhờ tôi."},
+        {"english": "If you don't hurry, you will miss the bus.", "vietnamese": "Nếu bạn không nhanh lên, bạn sẽ lỡ xe buýt."}
+      ],
+      "notes": "📌 Dấu hiệu: Mệnh đề 'if' dùng thì hiện tại đơn, mệnh đề chính dùng 'will/can/may + V'.\n\n⚠️ Lưu ý quan trọng: KHÔNG dùng 'will' trong mệnh đề 'if'!\n- Sai: If it will rain...\n- Đúng: If it rains...\n\nCó thể thay 'will' bằng 'can', 'may', 'might', 'should' tùy mức độ chắc chắn.",
+      "orderIndex": 1,
+      "questions": [
+        {
+          "id": "q_cond_1_1",
+          "questionText": "If she ___, she ___ the train.",
+          "options": ["doesn't hurry / will miss", "won't hurry / misses", "doesn't hurry / misses", "didn't hurry / would miss"],
+          "correctAnswerIndex": 0,
+          "explanation": "Câu điều kiện loại 1 diễn tả sự việc có thể xảy ra ở hiện tại hoặc tương lai. Mệnh đề 'if' chia ở hiện tại đơn ('doesn't hurry'), mệnh đề chính chia ở tương lai đơn ('will miss')."
+        },
+        {
+          "id": "q_cond_1_2",
+          "questionText": "I will call you if I ___ any news.",
+          "options": ["will hear", "hear", "hears", "heard"],
+          "correctAnswerIndex": 1,
+          "explanation": "Lưu ý quan trọng trong câu điều kiện loại 1: KHÔNG dùng 'will' trong mệnh đề 'if'. Mệnh đề 'if' phải dùng thì hiện tại đơn ('hear')."
+        },
+        {
+          "id": "q_cond_1_3",
+          "questionText": "If they study hard, they ___ pass the exam easily.",
+          "options": ["would", "could", "can", "did"],
+          "correctAnswerIndex": 2,
+          "explanation": "Trong mệnh đề chính của câu điều kiện loại 1, ngoài 'will' ta có thể dùng các động từ khuyết thiếu như 'can', 'may', 'should' để chỉ khả năng hoặc lời khuyên."
+        }
+      ]
+    },
+    {
+      "id": "conditionals_2",
+      "topicId": "conditionals",
+      "title": "Câu Điều Kiện Loại 2 (Second Conditional)",
+      "explanation": "Câu điều kiện loại 2 (Second Conditional) dùng để diễn tả tình huống giả định không có thật ở hiện tại, hoặc điều kiện không thể hoặc khó có thể xảy ra. Thường dùng để tưởng tượng, mơ ước, hoặc đưa ra lời khuyên.",
+      "structure": "If + S + V (quá khứ đơn), S + would/could/might + V (nguyên thể)\n\n⚠️ Đặc biệt: Với 'to be', dùng 'were' cho tất cả các ngôi.\nIf I were you, I would...",
+      "usage": [
+        "Diễn tả tình huống giả định, không có thật ở hiện tại",
+        "Diễn tả ước muốn, mơ ước không thực tế",
+        "Đưa ra lời khuyên (If I were you...)",
+        "Nói về điều không thể xảy ra hoặc rất khó xảy ra"
+      ],
+      "examples": [
+        {"english": "If I had a million dollars, I would travel the world.", "vietnamese": "Nếu tôi có một triệu đô la, tôi sẽ đi du lịch vòng quanh thế giới."},
+        {"english": "If I were you, I would study harder.", "vietnamese": "Nếu tôi là bạn, tôi sẽ học chăm chỉ hơn."},
+        {"english": "If she spoke English fluently, she could get that job.", "vietnamese": "Nếu cô ấy nói được tiếng Anh trôi chảy, cô ấy có thể nhận được công việc đó."},
+        {"english": "What would you do if you won the lottery?", "vietnamese": "Bạn sẽ làm gì nếu bạn trúng xổ số?"}
+      ],
+      "notes": "📌 Phân biệt với loại 1:\n- Loại 1: If it rains, I will stay home. (Có thể xảy ra)\n- Loại 2: If it rained, I would stay home. (Giả định, không thật)\n\n⚠️ Lưu ý: 'were' dùng cho tất cả các ngôi (I were, he were, she were, they were) trong văn phong trang trọng.\n\n💡 Mẹo: Luôn dùng 'If I were you...' (không dùng 'was') khi cho lời khuyên.",
+      "orderIndex": 2,
+      "questions": [
+        {
+          "id": "q_cond_2_1",
+          "questionText": "If I ___ a bird, I ___ fly anywhere.",
+          "options": ["was / will", "were / would", "am / can", "had been / would"],
+          "correctAnswerIndex": 1,
+          "explanation": "Câu điều kiện loại 2 diễn tả giả định không có thật ở hiện tại. Mệnh đề 'if' dùng động từ 'to be' chia là 'were' cho mọi ngôi, mệnh đề chính dùng 'would/could + V-inf'."
+        },
+        {
+          "id": "q_cond_2_2",
+          "questionText": "If she spoke English fluently, she ___ a better job.",
+          "options": ["will get", "gets", "would get", "got"],
+          "correctAnswerIndex": 2,
+          "explanation": "Giả định không có thật ở hiện tại (thực tế cô ấy không nói tiếng Anh trôi chảy). Vế 'if' chia ở quá khứ đơn ('spoke'), vế chính dùng 'would/could + V-inf' ('would get')."
+        },
+        {
+          "id": "q_cond_2_3",
+          "questionText": "If I were you, I ___ that expensive phone.",
+          "options": ["won't buy", "didn't buy", "wouldn't buy", "don't buy"],
+          "correctAnswerIndex": 2,
+          "explanation": "Cấu trúc 'If I were you...' dùng để đưa ra lời khuyên ở câu điều kiện loại 2. Mệnh đề chính dùng 'wouldn't + V-inf' để khuyên không nên mua."
+        }
+      ]
+    }
+  ]
+}
