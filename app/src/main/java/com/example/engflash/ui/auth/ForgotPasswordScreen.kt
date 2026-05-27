@@ -13,7 +13,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockReset
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +28,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +48,10 @@ fun ForgotPasswordScreen(
 
     var emailInput by remember { mutableStateOf("") }
     var otpInput by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
+    var showConfirmPassword by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
 
@@ -140,10 +149,10 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = if (otpState is OtpState.Idle || otpState is OtpState.Loading && otpEmail.isBlank()) {
-                        "Khôi phục tài khoản"
-                    } else {
-                        "Nhập mã xác thực"
+                    text = when {
+                        otpState is OtpState.EnterNewPassword || (otpState is OtpState.Error && newPassword.isNotBlank()) -> "Đặt mật khẩu mới"
+                        otpState is OtpState.Idle || (otpState is OtpState.Loading && otpEmail.isBlank()) -> "Khôi phục tài khoản"
+                        else -> "Nhập mã xác thực"
                     },
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
@@ -153,10 +162,10 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = if (otpState is OtpState.Idle || otpState is OtpState.Loading && otpEmail.isBlank()) {
-                        "Nhập email đã đăng ký của bạn. Chúng tôi sẽ gửi mã OTP gồm 6 chữ số để xác minh danh tính."
-                    } else {
-                        "Mã xác thực đã được gửi thành công đến địa chỉ email:\n$otpEmail"
+                    text = when {
+                        otpState is OtpState.EnterNewPassword || (otpState is OtpState.Error && newPassword.isNotBlank()) -> "Xác thực OTP thành công! Vui lòng nhập mật khẩu mới cho tài khoản của bạn."
+                        otpState is OtpState.Idle || (otpState is OtpState.Loading && otpEmail.isBlank()) -> "Nhập email đã đăng ký của bạn. Chúng tôi sẽ gửi mã OTP gồm 6 chữ số để xác minh danh tính."
+                        else -> "Mã xác thực đã được gửi thành công đến địa chỉ email:\n$otpEmail"
                     },
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
@@ -230,7 +239,7 @@ fun ForgotPasswordScreen(
                 }
 
                 // ─── GIAI ĐOẠN 2: NHẬP MÃ OTP 6 SỐ ─────────────────────────────────────
-                else {
+                else if (otpState is OtpState.Sent || otpState is OtpState.Verified || (otpState is OtpState.Loading && otpEmail.isNotBlank() && newPassword.isBlank()) || (otpState is OtpState.Error && otpEmail.isNotBlank() && newPassword.isBlank())) {
                     // Mẹo thiết kế OTP: Dùng BasicTextField ẩn để đón phím gõ
                     BasicTextField(
                         value = otpInput,
@@ -336,7 +345,7 @@ fun ForgotPasswordScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Nút xác thực thủ công (phòng trường hợp người dùng nhập đủ 6 số nhưng không tự trigger)
+                    // Nút xác thực thủ công
                     Button(
                         onClick = { viewModel.verifyOtp(otpInput) },
                         enabled = otpInput.length == 6 && otpState !is OtpState.Loading,
@@ -365,11 +374,94 @@ fun ForgotPasswordScreen(
                         Text("Thay đổi địa chỉ Email")
                     }
                 }
+
+                // ─── GIAI ĐOẠN 3: NHẬP MẬT KHẨU MỚI ─────────────────────────────────────
+                else if (otpState is OtpState.EnterNewPassword || (otpState is OtpState.Loading && newPassword.isNotBlank()) || (otpState is OtpState.Error && newPassword.isNotBlank())) {
+                    // Ô nhập mật khẩu mới
+                    OutlinedTextField(
+                        value = newPassword,
+                        onValueChange = { newPassword = it },
+                        label = { Text("Mật khẩu mới") },
+                        placeholder = { Text("Nhập mật khẩu mới (tối thiểu 6 ký tự)") },
+                        leadingIcon = {
+                            Icon(imageVector = Icons.Default.Lock, contentDescription = null)
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { showPassword = !showPassword }) {
+                                Icon(
+                                    imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = if (showPassword) "Ẩn mật khẩu" else "Hiện mật khẩu"
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Ô xác nhận mật khẩu
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
+                        label = { Text("Xác nhận mật khẩu") },
+                        placeholder = { Text("Nhập lại mật khẩu mới") },
+                        leadingIcon = {
+                            Icon(imageVector = Icons.Default.Lock, contentDescription = null)
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
+                                Icon(
+                                    imageVector = if (showConfirmPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = if (showConfirmPassword) "Ẩn mật khẩu" else "Hiện mật khẩu"
+                                )
+                            }
+                        },
+                        singleLine = true,
+                        visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Nút xác nhận đổi mật khẩu
+                    Button(
+                        onClick = { viewModel.submitNewPassword(newPassword, confirmPassword) },
+                        enabled = newPassword.length >= 6 && confirmPassword.isNotBlank() && otpState !is OtpState.Loading,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    ) {
+                        if (otpState is OtpState.Loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Đặt lại mật khẩu", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
             }
         }
     }
 
-    // ─── DIALOG THÀNH CÔNG (Sau khi đã xác thực OTP thành công và Firebase gửi link) ───
+    // ─── DIALOG THÀNH CÔNG ───
     if (showSuccessDialog) {
         Dialog(
             onDismissRequest = {
@@ -390,7 +482,7 @@ fun ForgotPasswordScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "🎉 Xác thực thành công!",
+                        text = "\uD83C\uDF89 Đổi mật khẩu thành công!",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -400,7 +492,7 @@ fun ForgotPasswordScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = "Hệ thống đã xác minh email chính chủ thành công. Để hoàn tất đổi mật khẩu một cách an toàn nhất, Firebase đã gửi một liên kết đổi mật khẩu tới email:\n\n$otpEmail\n\nVui lòng kiểm tra hộp thư, nhấp vào liên kết để đặt lại mật khẩu mới, sau đó quay lại đăng nhập.",
+                        text = "Hệ thống đã gửi liên kết xác nhận đổi mật khẩu tới email:\n\n$otpEmail\n\nVui lòng mở email, nhấp vào liên kết và nhập mật khẩu mới để hoàn tất. Sau đó quay lại đăng nhập.",
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center,
@@ -419,7 +511,7 @@ fun ForgotPasswordScreen(
                             .fillMaxWidth()
                             .height(48.dp)
                     ) {
-                        Text("Quay lại màn hình Đăng nhập", fontWeight = FontWeight.Bold)
+                        Text("Quay lại Đăng nhập", fontWeight = FontWeight.Bold)
                     }
                 }
             }

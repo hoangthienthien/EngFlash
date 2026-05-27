@@ -45,6 +45,7 @@ sealed class OtpState {
     object Loading : OtpState()
     object Sent : OtpState()
     object Verified : OtpState()
+    object EnterNewPassword : OtpState()
     object SuccessResetLink : OtpState()
     data class Error(val message: String) : OtpState()
 }
@@ -168,21 +169,38 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         if (enteredOtp == generatedOtp) {
-            _otpState.value = OtpState.Verified
-            // Sau khi OTP đúng, gọi Firebase Auth gửi link reset mật khẩu thực tế
-            viewModelScope.launch {
+            // OTP đúng → chuyển sang bước nhập mật khẩu mới
+            _otpState.value = OtpState.EnterNewPassword
+        } else {
+            _otpState.value = OtpState.Error("Mã xác thực OTP không chính xác")
+        }
+    }
+
+    fun submitNewPassword(newPassword: String, confirmPassword: String) {
+        if (newPassword.length < 6) {
+            _otpState.value = OtpState.Error("Mật khẩu phải có ít nhất 6 ký tự")
+            return
+        }
+        if (newPassword != confirmPassword) {
+            _otpState.value = OtpState.Error("Mật khẩu xác nhận không khớp")
+            return
+        }
+
+        viewModelScope.launch {
+            _otpState.value = OtpState.Loading
+            try {
                 val result = sendPasswordResetEmailUseCase(otpEmail)
                 result.fold(
                     onSuccess = {
                         _otpState.value = OtpState.SuccessResetLink
                     },
                     onFailure = {
-                        _otpState.value = OtpState.Error("Lỗi Firebase Auth: ${mapFirebaseError(it)}")
+                        _otpState.value = OtpState.Error("Lỗi: ${mapFirebaseError(it)}")
                     }
                 )
+            } catch (e: Exception) {
+                _otpState.value = OtpState.Error("Đã xảy ra lỗi: ${e.localizedMessage}")
             }
-        } else {
-            _otpState.value = OtpState.Error("Mã xác thực OTP không chính xác")
         }
     }
 
