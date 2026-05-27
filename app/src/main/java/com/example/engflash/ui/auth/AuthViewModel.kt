@@ -131,22 +131,28 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _otpState.value = OtpState.Loading
             
-            // Sinh mã OTP 6 số ngẫu nhiên
-            val otp = (100000..999999).random().toString()
-            println("DEBUG_ENGFLASH: Generated OTP for $email is $otp") // Ghi log kiểm tra
-            
-            val result = sendOtpEmailUseCase(email, otp)
-            result.fold(
-                onSuccess = {
-                    generatedOtp = otp
-                    otpEmail = email
-                    _otpState.value = OtpState.Sent
-                    startCountdown()
-                },
-                onFailure = {
-                    _otpState.value = OtpState.Error("Không thể gửi email OTP: ${it.localizedMessage}")
-                }
-            )
+            try {
+                // Sinh mã OTP 6 số ngẫu nhiên
+                val otp = (100000..999999).random().toString()
+                android.util.Log.d("AuthViewModel", "DEBUG: Generated OTP for $email is $otp")
+                
+                val result = sendOtpEmailUseCase(email, otp)
+                result.fold(
+                    onSuccess = {
+                        generatedOtp = otp
+                        otpEmail = email
+                        _otpState.value = OtpState.Sent
+                        startCountdown()
+                    },
+                    onFailure = { e ->
+                        android.util.Log.e("AuthViewModel", "Lỗi gửi OTP: ${e.message}", e)
+                        _otpState.value = OtpState.Error("Không thể gửi email OTP. Vui lòng thử lại.")
+                    }
+                )
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Exception gửi OTP: ${e.message}", e)
+                _otpState.value = OtpState.Error("Đã xảy ra lỗi: ${e.localizedMessage}")
+            }
         }
     }
 
