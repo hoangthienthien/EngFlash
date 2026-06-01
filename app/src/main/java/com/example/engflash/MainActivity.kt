@@ -26,7 +26,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-                    // Nếu đã đăng nhập → vào Home, chưa → vào Login
                     val startDestination = if (FirebaseAuth.getInstance().currentUser != null) {
                         Routes.HOME
                     } else {

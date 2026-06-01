@@ -130,6 +130,18 @@ private fun QuizContent(
         showResults = false
     }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    LaunchedEffect(showResults) {
+        if (showResults) {
+            val prefs = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+            prefs.edit()
+                .putInt("grammar_score_${rule.id}", score)
+                .putInt("grammar_total_${rule.id}", questions.size)
+                .apply()
+        }
+    }
+
     if (showResults) {
         QuizResultsView(
             score = score,

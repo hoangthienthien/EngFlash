@@ -1,134 +1,378 @@
 package com.example.engflash.ui.grammar
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.engflash.domain.model.Topic
-import com.example.engflash.ui.home.HomeViewModel
-import com.example.engflash.ui.theme.*
+import androidx.navigation.NavController
+import com.example.engflash.domain.model.GrammarRule
+import com.example.engflash.ui.navigation.Routes
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
 
-@OptIn(ExperimentalMaterial3Api::class)
+// ─── Theme Colors ──────────────────────────────────────
+private val PageBg = Color(0xFFFBFBFE)
+private val CardBg = Color(0xFFFFFFFF)
+private val TextPrimary = Color(0xFF1E1640)
+private val TextSecondary = Color(0xFF7D7799)
+private val PurplePrimary = Color(0xFF5E3CB3)
+private val PurpleLight = Color(0xFFEAE5FF)
+private val BorderColor = Color(0xFFEEEAF7)
+
 @Composable
 fun GrammarTopicListScreen(
-    viewModel: HomeViewModel,
-    onTopicClick: (String) -> Unit,
-    onBack: () -> Unit
+    viewModel: GrammarViewModel,
+    navController: NavController,
+    onStartQuiz: (String) -> Unit
 ) {
-    val topics by viewModel.topics.collectAsState(initial = emptyList())
+    val grammarRules by viewModel.allGrammarRules.collectAsState(initial = emptyList())
+    var expandedRuleId by remember { mutableStateOf<String?>("present_perfect") } // Present Perfect open by default like the mockup
+
+    val currentUser = remember { viewModel.getCurrentUser() }
+    val displayName = currentUser?.displayName ?: "User"
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember(context) { context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE) }
+
+    // State to trigger recomposition when quizzes are completed
+    var updateTrigger by remember { mutableIntStateOf(0) }
+
+    // Re-check scores whenever screen is displayed
+    val completedRulesCount = remember(grammarRules, updateTrigger) {
+        grammarRules.count { rule ->
+            prefs.getInt("grammar_score_${rule.id}", -1) != -1
+        }
+    }
+    val totalRules = grammarRules.size
+    val overallProgressPercent = if (totalRules > 0) (completedRulesCount * 100 / totalRules) else 0
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Chủ đề Ngữ pháp",
-                        fontWeight = FontWeight.SemiBold
+        bottomBar = {
+            NavigationBar(containerColor = CardBg, tonalElevation = 0.dp) {
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Home, null) },
+                    label = { Text("Trang chủ", fontSize = 11.sp) }, // Consistently Vietnamese
+                    selected = false,
+                    onClick = { navController.navigate(Routes.HOME) { popUpTo(Routes.HOME) { inclusive = true } } },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        unselectedIconColor = TextSecondary,
+                        indicatorColor = PurplePrimary
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại"
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Book, null) },
+                    label = { Text("Từ vựng", fontSize = 11.sp) },
+                    selected = false,
+                    onClick = { navController.navigate(Routes.VOCABULARY_PLACEHOLDER) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        unselectedIconColor = TextSecondary,
+                        indicatorColor = PurplePrimary
+                    )
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Style, null) },
+                    label = { Text("Luyện tập", fontSize = 11.sp) },
+                    selected = false,
+                    onClick = { navController.navigate(Routes.FLASHCARD_PLACEHOLDER) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        unselectedIconColor = TextSecondary,
+                        indicatorColor = PurplePrimary
+                    )
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.School, null) },
+                    label = { Text("Ngữ pháp", fontSize = 11.sp) },
+                    selected = true,
+                    onClick = { },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        unselectedIconColor = TextSecondary,
+                        indicatorColor = PurplePrimary
+                    )
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Person, null) },
+                    label = { Text("Cá nhân", fontSize = 11.sp) },
+                    selected = false,
+                    onClick = { navController.navigate(Routes.PROFILE) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color.White,
+                        unselectedIconColor = TextSecondary,
+                        indicatorColor = PurplePrimary
+                    )
+                )
+            }
+        },
+        containerColor = PageBg
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // ─── Header Row ────────────────────────────────
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(PurplePrimary)
+                                .clickable { navController.navigate(Routes.PROFILE) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = displayName.firstOrNull()?.uppercase() ?: "U",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                        Text(
+                            text = "EngFlash",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 22.sp,
+                            color = TextPrimary
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    ) { paddingValues ->
-        if (topics.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(bottom = 24.dp)
-            ) {
-                // Header card
-                item {
-                    Card(
+
+                    // Streak pill (no material icon as requested, uses sleek styling/text)
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        shape = RoundedCornerShape(20.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFFF1F0F7))
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "12 🔥",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ─── Grammar Hub Title & Progress ──────────────
+            item {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Trung Tâm Ngữ Pháp",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 22.sp,
+                        color = TextPrimary
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "Làm chủ ngữ pháp tiếng Anh qua các bài học trực quan sinh động.",
+                        color = TextSecondary,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Progress Section (Tiến độ hoàn thành)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = PurpleLight.copy(alpha = 0.3f)),
+                        border = BorderStroke(1.dp, PurpleLight)
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
-                                Icons.Default.MenuBook,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "Học Ngữ Pháp",
-                                    style = MaterialTheme.typography.titleMedium,
+                                    text = "Tiến độ của bạn",
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    fontSize = 15.sp,
+                                    color = PurplePrimary
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    text = "Đã hoàn thành $completedRulesCount / $totalRules chủ đề",
+                                    fontSize = 12.sp,
+                                    color = TextSecondary
+                                )
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Box(contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(
+                                    progress = { if (totalRules > 0) completedRulesCount.toFloat() / totalRules.toFloat() else 0f },
+                                    color = PurplePrimary,
+                                    trackColor = Color.White,
+                                    strokeWidth = 5.dp,
+                                    modifier = Modifier.size(48.dp)
                                 )
                                 Text(
-                                    "Chọn chủ đề bên dưới để bắt đầu học cấu trúc và làm quiz.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                    text = "$overallProgressPercent%",
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 11.sp,
+                                    color = PurplePrimary
                                 )
                             }
                         }
                     }
                 }
+            }
 
-                // Title
-                item {
-                    Text(
-                        text = "Chọn chủ đề để học",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 24.dp, top = 8.dp, bottom = 12.dp)
-                    )
-                }
+            // ─── Grammar Rules List ────────────────────────
+            items(grammarRules) { rule ->
+                val savedScore = prefs.getInt("grammar_score_${rule.id}", -1)
+                val savedTotal = prefs.getInt("grammar_total_${rule.id}", 0)
 
-                // Topic items
-                itemsIndexed(topics) { index, topic ->
-                    TopicCard(
-                        topic = topic,
-                        index = index,
-                        onClick = { onTopicClick(topic.id) }
-                    )
+                GrammarRuleCard(
+                    rule = rule,
+                    isExpanded = expandedRuleId == rule.id,
+                    savedScore = savedScore,
+                    savedTotal = savedTotal,
+                    onToggleExpand = {
+                        expandedRuleId = if (expandedRuleId == rule.id) null else rule.id
+                    },
+                    onStartQuiz = { onStartQuiz(rule.id) }
+                )
+            }
+
+            // ─── Smart Tips & AI Insights ──────────────────
+            item {
+                Spacer(Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    // Smart Tips (Clean card - no icons)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBg),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(PurpleLight)
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = "MẸO HỌC TẬP",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PurplePrimary
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = "Lỗi sai thường gặp",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = "Tìm hiểu tại sao nhiều người học hay nhầm lẫn giữa 'Since' và 'For'.",
+                                color = TextSecondary,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+
+                    // AI Insights (Clean card - no icons)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBg),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color(0xFFF1F2F6))
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = "PHÂN TÍCH AI",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF57606F)
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                text = "Phát âm phản xạ",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = TextPrimary
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = "Kiểm tra phát âm các động từ bất quy tắc ở phân từ hai của bạn.",
+                                color = TextSecondary,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -136,88 +380,334 @@ fun GrammarTopicListScreen(
 }
 
 @Composable
-private fun TopicCard(
-    topic: Topic,
-    index: Int,
-    onClick: () -> Unit
+fun GrammarRuleCard(
+    rule: GrammarRule,
+    isExpanded: Boolean,
+    savedScore: Int,
+    savedTotal: Int,
+    onToggleExpand: () -> Unit,
+    onStartQuiz: () -> Unit
 ) {
-    val iconColors = listOf(
-        PrimaryLight to PrimaryContainerLight,
-        SecondaryLight to SecondaryContainerLight,
-        TertiaryLight to TertiaryContainerLight
-    )
-    val (iconColor, containerColor) = iconColors[index % iconColors.size]
-    val icon = mapTopicIcon(topic.iconName)
+    val levelEn = getGrammarLevel(rule.id)
+    val categoryEn = getGrammarCategory(rule.topicId)
+
+    val level = when(levelEn) {
+        "BEGINNER" -> "CƠ BẢN"
+        "INTERMEDIATE" -> "TRUNG CẤP"
+        "ADVANCED" -> "NÂNG CAO"
+        else -> levelEn
+    }
+
+    val category = when(categoryEn) {
+        "Verb Tenses" -> "Thì của Động từ"
+        "Auxiliaries" -> "Trợ động từ"
+        "Grammar" -> "Ngữ pháp"
+        else -> categoryEn
+    }
+
+    val (levelBg, levelText) = when (levelEn) {
+        "BEGINNER" -> Pair(Color(0xFFF1F2F6), Color(0xFF57606F))
+        "INTERMEDIATE" -> Pair(Color(0xFFEAE5FF), Color(0xFF5E3CB3))
+        "ADVANCED" -> Pair(Color(0xFFFFF3E0), Color(0xFFFFB300))
+        else -> Pair(Color(0xFFEAE5FF), Color(0xFF5E3CB3))
+    }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 6.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+            .clickable { onToggleExpand() },
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(20.dp)
         ) {
-            // Icon Circle
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(containerColor),
-                contentAlignment = Alignment.Center
+            // Header Row
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(levelBg)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = level,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = levelText
+                        )
+                    }
+                    Text(
+                        text = category,
+                        fontSize = 12.sp,
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    // Completion score badge
+                    if (savedScore != -1) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFE2F0D9))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "Đã đạt ($savedScore/$savedTotal)",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF385723)
+                            )
+                        }
+                    }
+                }
                 Icon(
-                    icon,
-                    contentDescription = topic.name,
-                    tint = iconColor,
-                    modifier = Modifier.size(28.dp)
+                    imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = TextSecondary,
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(Modifier.height(8.dp))
 
-            // Text content
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = topic.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = topic.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2
-                )
-            }
-
-            Icon(
-                Icons.Default.ChevronRight,
-                contentDescription = "Mở",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            Text(
+                text = rule.title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = TextPrimary
             )
+
+            if (isExpanded) {
+                Spacer(Modifier.height(16.dp))
+
+                // STRUCTURE Section
+                Text(
+                    text = "CẤU TRÚC",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PurplePrimary,
+                    letterSpacing = 0.5.sp
+                )
+                Spacer(Modifier.height(6.dp))
+                val cleanStructure = remember(rule.structure) {
+                    rule.structure
+                        .split("\n")
+                        .map { line ->
+                            line.trim()
+                                .removePrefix("✅")
+                                .removePrefix("❌")
+                                .removePrefix("❓")
+                                .trim()
+                        }
+                        .joinToString("\n")
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFF7F5FC))
+                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = cleanStructure,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF5E3CB3),
+                        lineHeight = 22.sp
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                // USAGE Section (No material checkmark icons as requested)
+                Text(
+                    text = "CÁCH DÙNG",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PurplePrimary,
+                    letterSpacing = 0.5.sp
+                )
+                Spacer(Modifier.height(6.dp))
+                rule.usage.forEach { usageItem ->
+                    Row(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            text = "•",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PurplePrimary,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = usageItem,
+                            fontSize = 13.sp,
+                            color = TextPrimary,
+                            lineHeight = 18.sp
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                // EXAMPLES Section
+                Text(
+                    text = "VÍ DỤ",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PurplePrimary,
+                    letterSpacing = 0.5.sp
+                )
+                Spacer(Modifier.height(6.dp))
+
+                // Table of Examples
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFBFBFE))
+                        .border(1.dp, Color(0xFFEEEAF7), RoundedCornerShape(12.dp))
+                ) {
+                    // Table Header
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF5F4FA))
+                            .padding(vertical = 8.dp, horizontal = 12.dp)
+                    ) {
+                        Text(
+                            text = "Ý nghĩa / Ngữ cảnh",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = TextPrimary,
+                            modifier = Modifier.weight(0.35f)
+                        )
+                        Text(
+                            text = "Câu ví dụ",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = TextPrimary,
+                            modifier = Modifier.weight(0.65f)
+                        )
+                    }
+
+                    // Table Rows
+                    rule.examples.forEachIndexed { idx, example ->
+                        HorizontalDivider(color = Color(0xFFEEEAF7))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp, horizontal = 12.dp)
+                        ) {
+                            Text(
+                                text = example.vietnamese,
+                                fontSize = 12.sp,
+                                color = TextSecondary,
+                                modifier = Modifier.weight(0.35f)
+                            )
+                            Box(modifier = Modifier.weight(0.65f)) {
+                                HighlightedSentence(text = example.english)
+                            }
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                // Quick Quiz Button
+                Button(
+                    onClick = onStartQuiz,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    contentPadding = PaddingValues(),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.horizontalGradient(
+                                    colors = listOf(PurplePrimary, Color(0xFF00B4DB))
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Luyện tập nhanh ⚡", // Vietnamese quiz title
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-/** Map iconName từ JSON sang Material Icon. */
-private fun mapTopicIcon(iconName: String): ImageVector {
-    return when (iconName) {
-        "schedule" -> Icons.Default.Schedule
-        "account_tree" -> Icons.Default.AccountTree
-        "school" -> Icons.Default.School
-        "translate" -> Icons.Default.Translate
-        "quiz" -> Icons.Default.Quiz
-        "book" -> Icons.Default.Book
-        else -> Icons.Default.MenuBook
+@Composable
+fun HighlightedSentence(text: String) {
+    val annotatedString = buildAnnotatedString {
+        val targets = listOf("have seen", "has grown", "went", "must be", "might be", "did not watch", "didn't watch")
+        var matched = false
+        for (target in targets) {
+            val startIdx = text.indexOf(target)
+            if (startIdx != -1) {
+                append(text.substring(0, startIdx))
+                pushStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic))
+                append(target)
+                pop()
+                append(text.substring(startIdx + target.length))
+                matched = true
+                break
+            }
+        }
+        if (!matched) {
+            append(text)
+        }
+    }
+    Text(
+        text = annotatedString,
+        fontSize = 12.sp,
+        color = TextPrimary
+    )
+}
+
+private fun getGrammarLevel(id: String): String {
+    return when (id) {
+        "past_simple" -> "BEGINNER"
+        "present_perfect" -> "INTERMEDIATE"
+        "modal_deduction" -> "ADVANCED"
+        else -> "INTERMEDIATE"
+    }
+}
+
+private fun getGrammarCategory(topicId: String): String {
+    return when (topicId) {
+        "basic_tenses", "verb_tenses" -> "Verb Tenses"
+        "auxiliaries" -> "Auxiliaries"
+        else -> "Grammar"
     }
 }
