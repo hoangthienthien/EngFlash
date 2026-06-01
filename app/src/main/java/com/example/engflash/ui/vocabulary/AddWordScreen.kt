@@ -307,7 +307,7 @@ fun AddWordScreen(
 
             // ─── New Word ──────────────────────────────────
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Từ mới (Tiếng Anh)", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 14.sp)
+                Text("Từ mới", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 14.sp)
                 OutlinedTextField(
                     value = word,
                     onValueChange = { word = it },

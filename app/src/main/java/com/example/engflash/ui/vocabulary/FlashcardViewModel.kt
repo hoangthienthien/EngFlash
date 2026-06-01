@@ -65,9 +65,20 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // Keep compatibility for VocabularyListScreen loading
+    // Used by VocabularyListScreen — loads ALL words in topic, no spaced repetition filter
     fun loadTopic(topic: String) {
-        loadTopicOrFilter(topic)
+        loadJob?.cancel()
+        _uiState.value = _uiState.value.copy(isLoading = true, selectedFilter = topic)
+        loadJob = viewModelScope.launch {
+            val flow = getVocabulariesByTopicUseCase(topic)
+            flow.collect { list ->
+                _uiState.value = _uiState.value.copy(
+                    vocabularies = list,
+                    isLoading = false,
+                    currentIndex = 0
+                )
+            }
+        }
     }
 
     fun nextCard() {
