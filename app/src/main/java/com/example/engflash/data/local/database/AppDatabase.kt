@@ -13,7 +13,7 @@ import com.example.engflash.data.local.entity.UserProfileEntity
 
 @Database(
     entities = [TopicEntity::class, GrammarEntity::class, VocabularyEntity::class, UserProfileEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

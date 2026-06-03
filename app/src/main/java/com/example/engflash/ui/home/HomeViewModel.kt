@@ -25,6 +25,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val getCurrentUserUseCase: GetCurrentUserUseCase = app.getCurrentUserUseCase
     private val logoutUseCase: LogoutUseCase = app.logoutUseCase
 
+    // ─── Streak ─────────────────────────────────────────
+    private val streakManager = app.streakManager
+    val currentStreak: StateFlow<Int> = streakManager.currentStreak
+    val longestStreak: StateFlow<Int> = streakManager.longestStreak
+
     /** Danh sách chủ đề từ Room DB (reactive Flow). */
     val topics: Flow<List<Topic>> = getAllTopicsUseCase()
 

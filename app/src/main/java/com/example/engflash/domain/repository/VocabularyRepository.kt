@@ -9,5 +9,9 @@ interface VocabularyRepository {
     suspend fun markAsLearned(id: Int)
     suspend fun toggleFavorite(id: Int, isFavorite: Boolean)
     suspend fun addVocabulary(vocabulary: Vocabulary)
+    suspend fun deleteVocabulary(id: Int)
+    suspend fun updateVocabulary(vocabulary: Vocabulary)
+    suspend fun getVocabularyById(id: Int): Vocabulary?
+    fun searchVocabularies(query: String): Flow<List<Vocabulary>>
     fun getAllTopics(): Flow<List<String>>
 }

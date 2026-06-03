@@ -15,8 +15,14 @@ import kotlinx.coroutines.launch
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
     private val app = application as EngFlashApplication
 
-    private val getUserProfileUseCase = app.getUserProfileUseCase
+    private val getUserProfileUseCase  = app.getUserProfileUseCase
     private val updateUserProfileUseCase = app.updateUserProfileUseCase
+
+    // ─── Achievement & Theme support ─────────────────────────────
+    private val achievementManager = com.example.engflash.util.AchievementManager()
+    val streakManager              = app.streakManager
+    val themeManager               = app.themeManager
+    val soundManager               = app.soundManager
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -141,5 +147,22 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 )
             }
         }
+    }
+
+    /**
+     * Trả về danh sách thành tựu đã được đánh giá dựa trên dữ liệu thực của user.
+     * Đọc quizzesCompleted từ SharedPreferences.
+     */
+    fun getAchievements(currentStreak: Int): List<com.example.engflash.domain.model.Achievement> {
+        val state = _uiState.value
+        val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+        val quizzesCompleted = prefs.getInt("quizzes_completed", 0)
+        return achievementManager.evaluate(
+            learnedCount      = state.learnedCount,
+            totalCount        = state.totalCount,
+            currentStreak     = currentStreak,
+            quizzesCompleted  = quizzesCompleted,
+            favoriteCount     = state.favoriteCount
+        )
     }
 }

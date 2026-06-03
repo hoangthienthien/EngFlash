@@ -24,13 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.engflash.ui.navigation.Routes
 
-// Design theme colors
-private val PageBg = Color(0xFFFBFBFE)
-private val CardBg = Color(0xFFFFFFFF)
-private val TextPrimary = Color(0xFF1E1640)
-private val TextSecondary = Color(0xFF7D7799)
-private val PurplePrimary = Color(0xFF5E3CB3)
-private val PurpleLight = Color(0xFFEAE5FF)
+// Xóa màu hardcode, chuyển vào trong Composable
 
 data class SubjectItem(
     val name: String,
@@ -48,6 +42,14 @@ fun VocabularyLibraryScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf("All Subjects") }
+
+    // ─── Theme Colors ───
+    val PageBg = MaterialTheme.colorScheme.background
+    val CardBg = MaterialTheme.colorScheme.surface
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+    val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val PurplePrimary = MaterialTheme.colorScheme.primary
+    val PurpleLight = MaterialTheme.colorScheme.primaryContainer
 
     val topics by viewModel.allTopics.collectAsState()
 
@@ -85,7 +87,7 @@ fun VocabularyLibraryScreen(
             FloatingActionButton(
                 onClick = { navController.navigate(Routes.ADD_WORD) },
                 containerColor = PurplePrimary,
-                contentColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
                 modifier = Modifier.padding(bottom = 16.dp, end = 8.dp)
             ) {
@@ -94,7 +96,7 @@ fun VocabularyLibraryScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp
             ) {
                 NavigationBarItem(
@@ -198,8 +200,8 @@ fun VocabularyLibraryScreen(
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isSelected) PurplePrimary else Color(0xFFF0EDF7),
-                                contentColor = if (isSelected) Color.White else TextPrimary
+                                containerColor = if (isSelected) PurplePrimary else MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
                             ),
                             shape = RoundedCornerShape(50),
                             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
@@ -309,14 +311,14 @@ fun VocabularyLibraryScreen(
                         ) {
                             Text(
                                 text = "Luyện tập hàng ngày",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 22.sp,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                             Text(
                                 text = "Học và ôn tập các từ vựng mới bằng Flashcard.",
-                                color = Color.White.copy(alpha = 0.85f),
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
                                 fontSize = 14.sp,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(bottom = 20.dp)
@@ -325,7 +327,7 @@ fun VocabularyLibraryScreen(
                                 onClick = {
                                     navController.navigate(Routes.FLASHCARD_PLACEHOLDER)
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = PurplePrimary),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = PurplePrimary),
                                 shape = RoundedCornerShape(16.dp),
                                 contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp),
                                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)

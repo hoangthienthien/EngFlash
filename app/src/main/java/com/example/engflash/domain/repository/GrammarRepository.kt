@@ -6,4 +6,5 @@ import kotlinx.coroutines.flow.Flow
 interface GrammarRepository {
     fun getGrammarByTopic(topicId: String): Flow<List<GrammarRule>>
     fun getGrammarById(id: String): Flow<GrammarRule?>
+    fun searchGrammar(query: String): Flow<List<GrammarRule>>
 }

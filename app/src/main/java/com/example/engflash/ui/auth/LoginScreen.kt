@@ -62,9 +62,7 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFBFBFE), Color(0xFFF3F1FD))
-                )
+                Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.background))
             )
     ) {
         Column(
@@ -88,14 +86,14 @@ fun LoginScreen(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFFEAE5FF))
-                        .border(1.5.dp, Color(0xFFC7B3FF), RoundedCornerShape(20.dp)),
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .border(1.5.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.MenuBook,
                         contentDescription = null,
-                        tint = Color(0xFF5E3CB3),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -107,7 +105,7 @@ fun LoginScreen(
                     text = "EngFlash",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF5E3CB3)
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -117,7 +115,7 @@ fun LoginScreen(
                     text = "Làm chủ tiếng Anh cùng độ chính xác tuyệt đối",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF7D7799),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
 
@@ -133,7 +131,7 @@ fun LoginScreen(
                             clip = false
                         ),
                     shape = RoundedCornerShape(28.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(
                         modifier = Modifier
@@ -144,7 +142,7 @@ fun LoginScreen(
                             text = "Chào mừng trở lại",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1E1640)
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -152,7 +150,7 @@ fun LoginScreen(
                         Text(
                             text = "Đăng nhập để tiếp tục học tập",
                             fontSize = 13.sp,
-                            color = Color(0xFF7D7799)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -162,7 +160,7 @@ fun LoginScreen(
                             text = "Địa chỉ Email",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF7D7799)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
@@ -174,13 +172,13 @@ fun LoginScreen(
                                 email = it
                                 localError = null
                             },
-                            placeholder = { Text("name@example.com", color = Color(0xFFB5B2C2)) },
+                            placeholder = { Text("name@example.com", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
                             leadingIcon = {
                                 Text(
                                     text = "@",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = Color(0xFF5E3CB3),
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(start = 14.dp, end = 4.dp)
                                 )
                             },
@@ -194,12 +192,12 @@ fun LoginScreen(
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFFF7F5FC),
-                                unfocusedContainerColor = Color(0xFFF7F5FC),
-                                focusedBorderColor = Color(0xFFE5DFFF),
-                                unfocusedBorderColor = Color(0xFFF1EEFA),
-                                focusedTextColor = Color(0xFF1E1640),
-                                unfocusedTextColor = Color(0xFF1E1640)
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -211,7 +209,7 @@ fun LoginScreen(
                             text = "Mật khẩu",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF7D7799)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(modifier = Modifier.height(6.dp))
@@ -223,12 +221,12 @@ fun LoginScreen(
                                 password = it
                                 localError = null
                             },
-                            placeholder = { Text("........", color = Color(0xFFB5B2C2)) },
+                            placeholder = { Text("........", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Lock,
                                     contentDescription = null,
-                                    tint = Color(0xFF5E3CB3),
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             },
@@ -237,7 +235,7 @@ fun LoginScreen(
                                     Icon(
                                         imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                         contentDescription = "Hiện/ẩn mật khẩu",
-                                        tint = Color(0xFF7D7799),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
@@ -254,12 +252,12 @@ fun LoginScreen(
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFFF7F5FC),
-                                unfocusedContainerColor = Color(0xFFF7F5FC),
-                                focusedBorderColor = Color(0xFFE5DFFF),
-                                unfocusedBorderColor = Color(0xFFF1EEFA),
-                                focusedTextColor = Color(0xFF1E1640),
-                                unfocusedTextColor = Color(0xFF1E1640)
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onBackground
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -307,18 +305,17 @@ fun LoginScreen(
                             enabled = loginState !is AuthState.Loading,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(52.dp)
-                                .shadow(2.dp, shape = RoundedCornerShape(16.dp)),
+                                .height(52.dp),
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF5E3CB3),
-                                contentColor = Color.White
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         ) {
                             if (loginState is AuthState.Loading) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(24.dp),
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onPrimary,
                                     strokeWidth = 2.dp
                                 )
                             } else {
@@ -351,7 +348,7 @@ fun LoginScreen(
                                 text = "Quên mật khẩu?",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF5E3CB3),
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .clickable { onNavigateToForgotPassword() }
                                     .padding(8.dp)
@@ -369,13 +366,13 @@ fun LoginScreen(
                             Text(
                                 text = "Chưa có tài khoản? ",
                                 fontSize = 14.sp,
-                                color = Color(0xFF7D7799)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 text = "Tham gia ngay",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF5E3CB3),
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
                                     .clickable { onNavigateToRegister() }
                                     .padding(vertical = 4.dp)
@@ -398,14 +395,14 @@ fun LoginScreen(
                 Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = null,
-                    tint = Color(0xFFB5B2C2),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Bảo mật thông tin bằng mã hóa AES-256",
                     fontSize = 12.sp,
-                    color = Color(0xFF7D7799)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

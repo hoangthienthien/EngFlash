@@ -102,6 +102,10 @@ class EngFlashApplication : Application() {
         IsLoggedInUseCase(authRepository)
     }
 
+    val changePasswordUseCase: com.example.engflash.domain.usecase.auth.ChangePasswordUseCase by lazy {
+        com.example.engflash.domain.usecase.auth.ChangePasswordUseCase(authRepository)
+    }
+
     // ─── Topic UseCases ──────────────────────────────────
     val getAllTopicsUseCase: GetAllTopicsUseCase by lazy {
         GetAllTopicsUseCase(topicRepository)
@@ -141,6 +145,26 @@ class EngFlashApplication : Application() {
         GetUniqueVocabTopicsUseCase(vocabularyRepository)
     }
 
+    val deleteVocabularyUseCase: com.example.engflash.domain.usecase.vocabulary.DeleteVocabularyUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.DeleteVocabularyUseCase(vocabularyRepository)
+    }
+
+    val updateVocabularyUseCase: com.example.engflash.domain.usecase.vocabulary.UpdateVocabularyUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.UpdateVocabularyUseCase(vocabularyRepository)
+    }
+
+    val getVocabularyByIdUseCase: com.example.engflash.domain.usecase.vocabulary.GetVocabularyByIdUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.GetVocabularyByIdUseCase(vocabularyRepository)
+    }
+
+    val searchVocabularyUseCase: com.example.engflash.domain.usecase.vocabulary.SearchVocabularyUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.SearchVocabularyUseCase(vocabularyRepository)
+    }
+
+    val searchGrammarUseCase: com.example.engflash.domain.usecase.grammar.SearchGrammarUseCase by lazy {
+        com.example.engflash.domain.usecase.grammar.SearchGrammarUseCase(grammarRepository)
+    }
+
     // ─── User Profile UseCases ───────────────────────────
     val getUserProfileUseCase: GetUserProfileUseCase by lazy {
         GetUserProfileUseCase(userRepository)
@@ -148,6 +172,18 @@ class EngFlashApplication : Application() {
 
     val updateUserProfileUseCase: UpdateUserProfileUseCase by lazy {
         UpdateUserProfileUseCase(userRepository)
+    }
+
+    val streakManager: com.example.engflash.util.StreakManager by lazy {
+        com.example.engflash.util.StreakManager(this)
+    }
+
+    val themeManager: com.example.engflash.util.ThemeManager by lazy {
+        com.example.engflash.util.ThemeManager(this)
+    }
+
+    val soundManager: com.example.engflash.util.SoundManager by lazy {
+        com.example.engflash.util.SoundManager(this)
     }
 
     override fun onCreate() {

@@ -23,6 +23,8 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     private val toggleVocabularyFavoriteUseCase = app.toggleVocabularyFavoriteUseCase
     private val addVocabularyUseCase = app.addVocabularyUseCase
     private val getUniqueVocabTopicsUseCase = app.getUniqueVocabTopicsUseCase
+    private val soundManager = app.soundManager
+    val streakManager = app.streakManager
 
     val allTopics: StateFlow<List<String>> = getUniqueVocabTopicsUseCase()
         .stateIn(
@@ -112,12 +114,24 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun reviewCard(vocabId: Int, rating: String) {
+        // Ghi nhận ngày học
+        app.streakManager.recordStudyDay()
+
         val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
         val delayMs = when (rating.lowercase()) {
-            "yếu" -> 1000L * 90 // 1.5 minutes
-            "được" -> 1000L * 60 * 15 // 15 minutes
-            "giỏi" -> 1000L * 60 * 60 * 24 * 4 // 4 days (3-5 days range)
+            "yếu" -> {
+                soundManager.playWrongSound()
+                1000L * 90 // 1.5 minutes
+            }
+            "được" -> {
+                soundManager.playCorrectSound()
+                1000L * 60 * 15 // 15 minutes
+            }
+            "giỏi" -> {
+                soundManager.playCorrectSound()
+                1000L * 60 * 60 * 24 * 4 // 4 days (3-5 days range)
+            }
             else -> 0L
         }
         prefs.edit().putLong("next_review_$vocabId", now + delayMs).apply()
@@ -134,6 +148,11 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         val indexToRemove = currentList.indexOfFirst { it.id == vocabId }
         if (indexToRemove != -1) {
             currentList.removeAt(indexToRemove)
+            
+            if (currentList.isEmpty()) {
+                soundManager.playCompleteSound()
+            }
+            
             val nextIndex = if (currentList.isEmpty()) 0 else currentIndex % currentList.size
             _uiState.value = _uiState.value.copy(
                 vocabularies = currentList,
@@ -211,6 +230,39 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
                 imageUrl = imageUrl.ifBlank { null }
             )
             addVocabularyUseCase(newVocab)
+        }
+    }
+
+    fun deleteVocabulary(id: Int) {
+        viewModelScope.launch {
+            app.deleteVocabularyUseCase(id)
+        }
+    }
+
+    fun updateVocabulary(
+        id: Int,
+        word: String,
+        meaning: String,
+        example: String,
+        phonetic: String,
+        partOfSpeech: String,
+        topic: String,
+        imageUrl: String
+    ) {
+        viewModelScope.launch {
+            // Lấy vocab hiện tại để giữ lại các cờ isFavorite, isLearned, v.v.
+            val currentVocab = app.getVocabularyByIdUseCase(id) ?: return@launch
+            
+            val updatedVocab = currentVocab.copy(
+                word = word,
+                meaning = meaning,
+                example = example,
+                phonetic = phonetic,
+                partOfSpeech = partOfSpeech,
+                topic = topic,
+                imageUrl = imageUrl.ifBlank { null }
+            )
+            app.updateVocabularyUseCase(updatedVocab)
         }
     }
 }

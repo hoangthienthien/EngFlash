@@ -9,7 +9,8 @@ fun UserProfileEntity.toDomain(): UserProfile {
         displayName = displayName,
         email = email,
         avatarUrl = avatarUrl,
-        bio = bio
+        bio = bio,
+        updatedAt = updatedAt
     )
 }
 
@@ -19,6 +20,7 @@ fun UserProfile.toEntity(): UserProfileEntity {
         displayName = displayName,
         email = email,
         avatarUrl = avatarUrl,
-        bio = bio
+        bio = bio,
+        updatedAt = updatedAt
     )
 }

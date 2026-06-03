@@ -84,4 +84,22 @@ class AuthRepositoryImpl : AuthRepository {
     override fun isLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
     }
+
+    override suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> {
+        return try {
+            val user = firebaseAuth.currentUser ?: throw Exception("Chưa đăng nhập")
+            val email = user.email ?: throw Exception("Không tìm thấy email")
+
+            // Re-authenticate trước khi đổi mật khẩu (Firebase yêu cầu)
+            val credential = com.google.firebase.auth.EmailAuthProvider
+                .getCredential(email, currentPassword)
+            user.reauthenticate(credential).await()
+
+            // Sau khi xác thực thành công, cập nhật mật khẩu mới
+            user.updatePassword(newPassword).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

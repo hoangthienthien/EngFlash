@@ -48,4 +48,16 @@ interface VocabularyDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(list: List<VocabularyEntity>)
+
+    @Query("DELETE FROM vocabularies WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
+    @Update
+    suspend fun update(vocabulary: VocabularyEntity)
+
+    @Query("SELECT * FROM vocabularies WHERE id = :id")
+    suspend fun getById(id: Int): VocabularyEntity?
+
+    @Query("SELECT * FROM vocabularies WHERE word LIKE '%' || :query || '%' OR meaning LIKE '%' || :query || '%' ORDER BY word ASC")
+    fun search(query: String): Flow<List<VocabularyEntity>>
 }

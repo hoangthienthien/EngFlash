@@ -21,21 +21,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.engflash.domain.model.GrammarRule
 import com.example.engflash.ui.navigation.Routes
+import com.example.engflash.util.GrammarTipsPool
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 
-// ─── Theme Colors ──────────────────────────────────────
-private val PageBg = Color(0xFFFBFBFE)
-private val CardBg = Color(0xFFFFFFFF)
-private val TextPrimary = Color(0xFF1E1640)
-private val TextSecondary = Color(0xFF7D7799)
-private val PurplePrimary = Color(0xFF5E3CB3)
-private val PurpleLight = Color(0xFFEAE5FF)
-private val BorderColor = Color(0xFFEEEAF7)
+// Màu sắc sẽ được lấy từ MaterialTheme.colorScheme bên trong mỗi Composable
 
 @Composable
 fun GrammarTopicListScreen(
@@ -43,11 +38,21 @@ fun GrammarTopicListScreen(
     navController: NavController,
     onStartQuiz: (String) -> Unit
 ) {
+    // ─── Theme Colors ───
+    val PageBg = MaterialTheme.colorScheme.background
+    val CardBg = MaterialTheme.colorScheme.surface
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+    val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val PurplePrimary = MaterialTheme.colorScheme.primary
+    val PurpleLight = MaterialTheme.colorScheme.primaryContainer
+    val BorderColor = MaterialTheme.colorScheme.outlineVariant
+
     val grammarRules by viewModel.allGrammarRules.collectAsState(initial = emptyList())
-    var expandedRuleId by remember { mutableStateOf<String?>("present_perfect") } // Present Perfect open by default like the mockup
+    var expandedRuleId by remember { mutableStateOf<String?>("present_perfect") }
 
     val currentUser = remember { viewModel.getCurrentUser() }
     val displayName = currentUser?.displayName ?: "User"
+    val currentStreak by viewModel.streakManager.currentStreak.collectAsStateWithLifecycle()
 
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefs = remember(context) { context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE) }
@@ -63,6 +68,10 @@ fun GrammarTopicListScreen(
     }
     val totalRules = grammarRules.size
     val overallProgressPercent = if (totalRules > 0) (completedRulesCount * 100 / totalRules) else 0
+
+    // Random tips — chọn 1 lần khi màn hình được compose
+    val studyTip = remember { GrammarTipsPool.getRandomStudyTip() }
+    val aiInsight = remember { GrammarTipsPool.getRandomAiInsight() }
 
     Scaffold(
         bottomBar = {
@@ -181,7 +190,7 @@ fun GrammarTopicListScreen(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = "12 🔥",
+                                text = "$currentStreak 🔥",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary
@@ -313,14 +322,14 @@ fun GrammarTopicListScreen(
                             }
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                text = "Lỗi sai thường gặp",
+                                text = studyTip.title,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 color = TextPrimary
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                text = "Tìm hiểu tại sao nhiều người học hay nhầm lẫn giữa 'Since' và 'For'.",
+                                text = studyTip.description,
                                 color = TextSecondary,
                                 fontSize = 13.sp
                             )
@@ -360,14 +369,14 @@ fun GrammarTopicListScreen(
                             }
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                text = "Phát âm phản xạ",
+                                text = aiInsight.title,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 color = TextPrimary
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
-                                text = "Kiểm tra phát âm các động từ bất quy tắc ở phân từ hai của bạn.",
+                                text = aiInsight.description,
                                 color = TextSecondary,
                                 fontSize = 13.sp
                             )
@@ -388,6 +397,15 @@ fun GrammarRuleCard(
     onToggleExpand: () -> Unit,
     onStartQuiz: () -> Unit
 ) {
+    // ─── Theme Colors ───
+    val PageBg = MaterialTheme.colorScheme.background
+    val CardBg = MaterialTheme.colorScheme.surface
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+    val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val PurplePrimary = MaterialTheme.colorScheme.primary
+    val PurpleLight = MaterialTheme.colorScheme.primaryContainer
+    val BorderColor = MaterialTheme.colorScheme.outlineVariant
+
     val levelEn = getGrammarLevel(rule.id)
     val categoryEn = getGrammarCategory(rule.topicId)
 
@@ -621,7 +639,7 @@ fun GrammarRuleCard(
                                 modifier = Modifier.weight(0.35f)
                             )
                             Box(modifier = Modifier.weight(0.65f)) {
-                                HighlightedSentence(text = example.english)
+                                HighlightedSentence(text = example.english, structure = rule.structure)
                             }
                         }
                     }
@@ -668,23 +686,23 @@ fun GrammarRuleCard(
 }
 
 @Composable
-fun HighlightedSentence(text: String) {
+fun HighlightedSentence(text: String, structure: String = "") {
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+
     val annotatedString = buildAnnotatedString {
-        val targets = listOf("have seen", "has grown", "went", "must be", "might be", "did not watch", "didn't watch")
-        var matched = false
-        for (target in targets) {
-            val startIdx = text.indexOf(target)
-            if (startIdx != -1) {
-                append(text.substring(0, startIdx))
-                pushStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic))
-                append(target)
-                pop()
-                append(text.substring(startIdx + target.length))
-                matched = true
-                break
-            }
-        }
-        if (!matched) {
+        val patterns = buildHighlightPatterns(structure)
+        val allMatches = patterns
+            .flatMap { it.findAll(text).toList() }
+            .sortedBy { it.range.first }
+
+        if (allMatches.isNotEmpty()) {
+            val match = allMatches.first()
+            append(text.substring(0, match.range.first))
+            pushStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic))
+            append(match.value)
+            pop()
+            append(text.substring(match.range.last + 1))
+        } else {
             append(text)
         }
     }
@@ -693,6 +711,39 @@ fun HighlightedSentence(text: String) {
         fontSize = 12.sp,
         color = TextPrimary
     )
+}
+
+/**
+ * Xây dựng danh sách Regex dựa trên structure của grammar rule.
+ * Ví dụ: "[S + have/has + V3/V-ed]" → tìm pattern "have/has + word"
+ */
+private fun buildHighlightPatterns(structure: String): List<Regex> {
+    val patterns = mutableListOf<Regex>()
+
+    // Present Perfect: have/has + past participle
+    if (structure.contains("have/has") || structure.contains("V3")) {
+        patterns.add(Regex("\\b(have|has)\\s+\\w+\\b", RegexOption.IGNORE_CASE))
+    }
+    // Past Simple: did + not + V or V-ed endings
+    if (structure.contains("V2") || structure.contains("did")) {
+        patterns.add(Regex("\\b(did\\s+not|didn't)\\s+\\w+\\b", RegexOption.IGNORE_CASE))
+        patterns.add(Regex("\\b\\w{4,}ed\\b", RegexOption.IGNORE_CASE))
+    }
+    // Modal verbs: must/might/could/can't + V
+    if (structure.contains("must") || structure.contains("might") || structure.contains("can't")) {
+        patterns.add(Regex("\\b(must|might|could|can't|cannot)\\s+\\w+\\b", RegexOption.IGNORE_CASE))
+    }
+    // Conditionals: would/would have
+    if (structure.contains("would")) {
+        patterns.add(Regex("\\bwould(\\s+have)?\\s+\\w+\\b", RegexOption.IGNORE_CASE))
+    }
+
+    // Fallback: highlight các động từ bất quy tắc phổ biến
+    if (patterns.isEmpty()) {
+        patterns.add(Regex("\\b(went|gone|seen|grown|taken|given|been|done|made|had|was|were)\\b", RegexOption.IGNORE_CASE))
+    }
+
+    return patterns
 }
 
 private fun getGrammarLevel(id: String): String {

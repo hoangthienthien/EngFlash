@@ -24,4 +24,7 @@ interface GrammarDao {
 
     @Query("SELECT COUNT(*) FROM grammar_rules")
     suspend fun getCount(): Int
+
+    @Query("SELECT * FROM grammar_rules WHERE title LIKE '%' || :query || '%' OR explanation LIKE '%' || :query || '%' ORDER BY title ASC")
+    fun search(query: String): Flow<List<GrammarEntity>>
 }

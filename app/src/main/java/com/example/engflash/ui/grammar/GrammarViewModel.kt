@@ -23,6 +23,8 @@ class GrammarViewModel(application: Application) : AndroidViewModel(application)
     private val getGrammarByTopicUseCase: GetGrammarByTopicUseCase = app.getGrammarByTopicUseCase
     private val getGrammarByIdUseCase: GetGrammarByIdUseCase = app.getGrammarByIdUseCase
 
+    val streakManager = app.streakManager
+
     fun getCurrentUser() = app.getCurrentUserUseCase()
 
     /** Lấy danh sách bài ngữ pháp theo chủ đề. */
