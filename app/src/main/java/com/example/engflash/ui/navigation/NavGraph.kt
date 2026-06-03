@@ -18,8 +18,13 @@ import com.example.engflash.ui.grammar.GrammarQuizScreen
 import com.example.engflash.ui.grammar.GrammarViewModel
 import com.example.engflash.ui.home.HomeScreen
 import com.example.engflash.ui.home.HomeViewModel
-import com.example.engflash.ui.home.VocabularyPlaceholderScreen
-import com.example.engflash.ui.home.FlashcardPlaceholderScreen
+import com.example.engflash.ui.vocabulary.FlashcardScreen
+import com.example.engflash.ui.vocabulary.FlashcardViewModel
+import com.example.engflash.ui.vocabulary.VocabularyLibraryScreen
+import com.example.engflash.ui.vocabulary.VocabularyListScreen
+import com.example.engflash.ui.vocabulary.AddWordScreen
+import com.example.engflash.ui.profile.ProfileScreen
+import com.example.engflash.ui.profile.ProfileViewModel
 
 @Composable
 fun NavGraph(
@@ -30,6 +35,8 @@ fun NavGraph(
     val authViewModel: AuthViewModel = viewModel()
     val homeViewModel: HomeViewModel = viewModel()
     val grammarViewModel: GrammarViewModel = viewModel()
+    val flashcardViewModel: FlashcardViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -79,6 +86,7 @@ fun NavGraph(
         // ─── Home ────────────────────────────────────────
         composable(Routes.HOME) {
             HomeScreen(
+                navController = navController,
                 viewModel = homeViewModel,
                 onNavigateToVocabulary = {
                     navController.navigate(Routes.VOCABULARY_PLACEHOLDER)
@@ -97,28 +105,62 @@ fun NavGraph(
             )
         }
 
-        // ─── Vocabulary Placeholder ──────────────────────
+        // ─── Vocabulary 3D Flashcard / Library ──────────
         composable(Routes.VOCABULARY_PLACEHOLDER) {
-            VocabularyPlaceholderScreen(
-                onBack = { navController.popBackStack() }
+            VocabularyLibraryScreen(
+                navController = navController,
+                viewModel = flashcardViewModel
             )
         }
 
-        // ─── Flashcard Placeholder ───────────────────────
+        composable(
+            route = Routes.VOCABULARY_LIST,
+            arguments = listOf(navArgument("topicName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val topicName = backStackEntry.arguments?.getString("topicName") ?: ""
+            VocabularyListScreen(
+                topicName = topicName,
+                viewModel = flashcardViewModel,
+                navController = navController
+            )
+        }
+
+        // ─── Flashcard Practice ──────────────────────────
         composable(Routes.FLASHCARD_PLACEHOLDER) {
-            FlashcardPlaceholderScreen(
-                onBack = { navController.popBackStack() }
+            FlashcardScreen(
+                navController = navController,
+                viewModel = flashcardViewModel
+            )
+        }
+
+        composable(Routes.ADD_WORD) {
+            AddWordScreen(
+                navController = navController,
+                viewModel = flashcardViewModel
+            )
+        }
+
+        // ─── Profile ─────────────────────────────────────
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                navController = navController,
+                viewModel = profileViewModel,
+                onLogout = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
 
         // ─── Grammar Topic List ──────────────────────────
         composable(Routes.GRAMMAR_TOPIC_LIST) {
             GrammarTopicListScreen(
-                viewModel = homeViewModel,
-                onTopicClick = { topicId ->
-                    navController.navigate(Routes.grammarList(topicId))
-                },
-                onBack = { navController.popBackStack() }
+                viewModel = grammarViewModel,
+                navController = navController,
+                onStartQuiz = { grammarRuleId ->
+                    navController.navigate(Routes.grammarQuiz(grammarRuleId))
+                }
             )
         }
 

@@ -2,287 +2,1315 @@
   "topics": [
     {
       "id": "basic_tenses",
-      "name": "Các Thì Cơ Bản",
-      "description": "Nắm vững các thì hiện tại trong tiếng Anh: Hiện tại đơn, tiếp diễn và hoàn thành",
-      "iconName": "schedule",
-      "orderIndex": 0,
+      "name": "Thì cơ bản",
+      "description": "Học về 12 thì tiếng Anh",
+      "iconName": "clock",
+      "orderIndex": 1,
       "totalLessons": 3
     },
     {
       "id": "conditionals",
-      "name": "Câu Điều Kiện",
-      "description": "Học cách sử dụng các loại câu điều kiện: Loại 0, loại 1 và loại 2",
-      "iconName": "account_tree",
-      "orderIndex": 1,
-      "totalLessons": 3
+      "name": "Câu điều kiện",
+      "description": "Học về các loại câu điều kiện",
+      "iconName": "split",
+      "orderIndex": 2,
+      "totalLessons": 2
     }
   ],
   "grammarRules": [
     {
-      "id": "basic_tenses_0",
+      "id": "present_perfect",
       "topicId": "basic_tenses",
-      "title": "Thì Hiện Tại Đơn (Present Simple)",
-      "explanation": "Thì hiện tại đơn (Present Simple) là thì cơ bản nhất trong tiếng Anh, được sử dụng để diễn tả các hành động lặp đi lặp lại theo thói quen, các sự thật hiển nhiên, hoặc các sự kiện diễn ra theo lịch trình cố định. Đây là thì đầu tiên mà người học tiếng Anh cần nắm vững.",
-      "structure": "✅ Khẳng định: S + V(s/es) + O\n❌ Phủ định: S + do/does + not + V(nguyên thể) + O\n❓ Nghi vấn: Do/Does + S + V(nguyên thể) + O?",
+      "title": "Present Perfect Tense",
+      "explanation": "Diễn tả hành động bắt đầu trong quá khứ kéo dài đến hiện tại hoặc trải nghiệm đã từng làm.",
+      "structure": "[S + have/has + V3/V-ed]",
       "usage": [
-        "Diễn tả thói quen, hành động lặp đi lặp lại hàng ngày",
-        "Diễn tả sự thật hiển nhiên, chân lý khoa học",
-        "Diễn tả lịch trình, thời gian biểu cố định (tàu, xe buýt, lớp học...)",
-        "Dùng trong mệnh đề thời gian (when, after, before...) và mệnh đề điều kiện loại 1"
+        "Actions that happened at an unspecified time in the past.",
+        "Actions that started in the past and continue to the present."
       ],
       "examples": [
-        {"english": "I go to school every day.", "vietnamese": "Tôi đi học mỗi ngày."},
-        {"english": "The sun rises in the east.", "vietnamese": "Mặt trời mọc ở phía đông."},
-        {"english": "She doesn't like coffee.", "vietnamese": "Cô ấy không thích cà phê."},
-        {"english": "Do you speak English?", "vietnamese": "Bạn có nói tiếng Anh không?"},
-        {"english": "The train leaves at 8 AM tomorrow.", "vietnamese": "Chuyến tàu khởi hành lúc 8 giờ sáng mai."}
-      ],
-      "notes": "📌 Dấu hiệu nhận biết: always, usually, often, sometimes, rarely, never, every day/week/month/year, on Mondays...\n\n⚠️ Lưu ý: Thêm 's/es' cho động từ khi chủ ngữ là ngôi thứ 3 số ít (he, she, it).\n- Thêm 'es' nếu động từ tận cùng là: o, s, x, z, ch, sh.\n- Đổi 'y' thành 'ies' nếu trước 'y' là phụ âm.",
-      "orderIndex": 0,
-      "questions": [
         {
-          "id": "q_present_simple_1",
-          "questionText": "Water ___ at 100 degrees Celsius.",
-          "options": ["boil", "boils", "is boiling", "boiled"],
-          "correctAnswerIndex": 1,
-          "explanation": "Sự thật hiển nhiên (nước sôi ở 100 độ C) được diễn tả bằng thì hiện tại đơn. Chủ ngữ 'Water' là danh từ không đếm được (tương đương ngôi thứ ba số ít), do đó động từ 'boil' thêm 's' thành 'boils'."
+          "english": "I have seen that movie thrice.",
+          "vietnamese": "Experience"
         },
         {
-          "id": "q_present_simple_2",
-          "questionText": "They ___ usually ___ coffee in the morning.",
-          "options": ["don't / drink", "doesn't / drink", "don't / drinks", "not / drink"],
-          "correctAnswerIndex": 0,
-          "explanation": "Với chủ ngữ 'They' ở dạng phủ định thì hiện tại đơn, ta sử dụng trợ động từ 'do not' ('don't') đi kèm động từ nguyên thể 'drink'."
-        },
-        {
-          "id": "q_present_simple_3",
-          "questionText": "___ your father work in a hospital?",
-          "options": ["Do", "Is", "Does", "Are"],
-          "correctAnswerIndex": 2,
-          "explanation": "Trong câu hỏi thì hiện tại đơn với chủ ngữ số ít 'your father' (bố của bạn - tương đương he), ta dùng trợ động từ 'Does' đứng đầu câu."
+          "english": "The city has grown rapidly.",
+          "vietnamese": "Change"
         }
-      ]
-    },
-    {
-      "id": "basic_tenses_1",
-      "topicId": "basic_tenses",
-      "title": "Thì Hiện Tại Tiếp Diễn (Present Continuous)",
-      "explanation": "Thì hiện tại tiếp diễn (Present Continuous) dùng để diễn tả hành động đang xảy ra tại thời điểm nói, hoặc hành động đang diễn ra trong một khoảng thời gian hiện tại (không nhất thiết ngay lúc nói). Thì này cũng được dùng để diễn tả kế hoạch đã được sắp xếp trong tương lai gần.",
-      "structure": "✅ Khẳng định: S + am/is/are + V-ing + O\n❌ Phủ định: S + am/is/are + not + V-ing + O\n❓ Nghi vấn: Am/Is/Are + S + V-ing + O?",
-      "usage": [
-        "Diễn tả hành động đang xảy ra ngay tại thời điểm nói",
-        "Diễn tả hành động đang diễn ra xung quanh thời điểm nói (không nhất thiết ngay lúc nói)",
-        "Diễn tả kế hoạch chắc chắn sẽ xảy ra trong tương lai gần",
-        "Diễn tả sự phàn nàn với 'always' (luôn luôn làm gì đó — mang tính tiêu cực)"
       ],
-      "examples": [
-        {"english": "I am studying English right now.", "vietnamese": "Tôi đang học tiếng Anh ngay bây giờ."},
-        {"english": "She is reading a book at the moment.", "vietnamese": "Cô ấy đang đọc sách lúc này."},
-        {"english": "We are meeting the client tomorrow.", "vietnamese": "Chúng tôi sẽ gặp khách hàng vào ngày mai."},
-        {"english": "He is always coming late!", "vietnamese": "Anh ấy luôn luôn đến trễ!"},
-        {"english": "They aren't watching TV now.", "vietnamese": "Họ không đang xem TV bây giờ."}
-      ],
-      "notes": "📌 Dấu hiệu nhận biết: now, right now, at the moment, at present, currently, Look!, Listen!...\n\n⚠️ Lưu ý: Một số động từ KHÔNG dùng ở thì tiếp diễn (stative verbs): know, understand, believe, love, hate, want, need, prefer, belong, own...\n- Sai: I am knowing the answer.\n- Đúng: I know the answer.",
+      "notes": "Chú ý dùng 'have' cho chủ ngữ I/we/you/they và 'has' cho he/she/it.",
       "orderIndex": 1,
       "questions": [
         {
-          "id": "q_present_cont_1",
-          "questionText": "Listen! The baby ___.",
-          "options": ["cries", "is crying", "cry", "crying"],
-          "correctAnswerIndex": 1,
-          "explanation": "Trạng từ chỉ định 'Listen!' (Hãy nghe kìa!) báo hiệu một hành động đang diễn ra ngay tại thời điểm nói, do đó ta dùng thì hiện tại tiếp diễn: S + am/is/are + V-ing."
-        },
-        {
-          "id": "q_present_cont_2",
-          "questionText": "We ___ a meeting with the client at 2 PM tomorrow.",
-          "options": ["have", "are having", "had", "are have"],
-          "correctAnswerIndex": 1,
-          "explanation": "Thì hiện tại tiếp diễn dùng để diễn tả một kế hoạch hoặc sự kiện đã được sắp xếp trước trong tương lai gần (gặp đối tác vào 2h chiều mai)."
-        },
-        {
-          "id": "q_present_cont_3",
-          "questionText": "Why ___ you ___ always coming late? It's so annoying!",
-          "options": ["do / coming", "are / came", "are / coming", "do / come"],
+          "id": "pp_q1",
+          "questionText": "She ___ (live) in London for three years now.",
+          "options": [
+            "lives",
+            "lived",
+            "has lived",
+            "is living"
+          ],
           "correctAnswerIndex": 2,
-          "explanation": "Cấu trúc 'S + am/is/are + always + V-ing' được dùng để diễn tả sự phàn nàn, bực mình về một hành động lặp đi lặp lại thường xuyên."
+          "explanation": "We use the Present Perfect tense to talk about actions that started in the past and continue to the present (with 'for three years')."
+        },
+        {
+          "id": "pp_q2",
+          "questionText": "___ you ever ___ to Paris?",
+          "options": [
+            "Did / go",
+            "Have / been",
+            "Are / going",
+            "Has / been"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "We use 'Have you ever been...' to ask about life experiences."
         }
       ]
     },
     {
-      "id": "basic_tenses_2",
+      "id": "past_simple",
       "topicId": "basic_tenses",
-      "title": "Thì Hiện Tại Hoàn Thành (Present Perfect)",
-      "explanation": "Thì hiện tại hoàn thành (Present Perfect) dùng để diễn tả hành động đã xảy ra trong quá khứ nhưng có kết quả hoặc liên quan đến hiện tại. Thì này nhấn mạnh kết quả hoặc kinh nghiệm, không quan tâm đến thời điểm cụ thể.",
-      "structure": "✅ Khẳng định: S + have/has + V3 (past participle) + O\n❌ Phủ định: S + have/has + not + V3 + O\n❓ Nghi vấn: Have/Has + S + V3 + O?",
+      "title": "Past Simple Tense",
+      "explanation": "Diễn tả hành động đã xảy ra và chấm dứt hoàn toàn trong quá khứ.",
+      "structure": "[S + V2/V-ed | S + did + not + V]",
       "usage": [
-        "Diễn tả hành động đã xảy ra trong quá khứ, không rõ thời gian, kết quả còn ở hiện tại",
-        "Diễn tả kinh nghiệm, trải nghiệm (đã từng / chưa từng)",
-        "Diễn tả hành động bắt đầu trong quá khứ và kéo dài đến hiện tại (dùng với since/for)",
-        "Diễn tả hành động vừa mới xảy ra (just, recently, lately)"
+        "Completed actions in the past.",
+        "A series of completed actions in the past."
       ],
       "examples": [
-        {"english": "I have visited Paris twice.", "vietnamese": "Tôi đã đến Paris hai lần."},
-        {"english": "She has lived here since 2020.", "vietnamese": "Cô ấy đã sống ở đây từ năm 2020."},
-        {"english": "Have you ever eaten sushi?", "vietnamese": "Bạn đã bao giờ ăn sushi chưa?"},
-        {"english": "He has just finished his homework.", "vietnamese": "Anh ấy vừa mới hoàn thành bài tập."},
-        {"english": "We haven't seen that movie yet.", "vietnamese": "Chúng tôi vẫn chưa xem bộ phim đó."}
+        {
+          "english": "Yesterday, I went to the cinema.",
+          "vietnamese": "Hành động đã kết thúc trong quá khứ"
+        },
+        {
+          "english": "They did not watch the match last night.",
+          "vietnamese": "Phủ định thì quá khứ đơn"
+        }
       ],
-      "notes": "📌 Dấu hiệu nhận biết: already, yet, just, ever, never, recently, lately, since, for, so far, up to now, until now...\n\n⚠️ Phân biệt 'since' và 'for':\n- Since + mốc thời gian: since 2020, since Monday, since I was a child\n- For + khoảng thời gian: for 3 years, for a long time, for 2 hours",
+      "notes": "Sử dụng trạng từ nhận biết như yesterday, last night, in 2020.",
       "orderIndex": 2,
       "questions": [
         {
-          "id": "q_present_perf_1",
-          "questionText": "She ___ here since she graduated from university.",
-          "options": ["has worked", "worked", "works", "is working"],
+          "id": "ps_q1",
+          "questionText": "Yesterday, I ___ (go) to the cinema.",
+          "options": [
+            "go",
+            "goes",
+            "went",
+            "have gone"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Yesterday indicates a completed action in the past, so we use Past Simple."
+        },
+        {
+          "id": "ps_q2",
+          "questionText": "They ___ (not / watch) the match last night.",
+          "options": [
+            "didn't watch",
+            "don't watch",
+            "didn't watched",
+            "haven't watched"
+          ],
           "correctAnswerIndex": 0,
-          "explanation": "Diễn tả hành động bắt đầu từ quá khứ và kéo dài đến hiện tại, có mốc thời gian bắt đầu sau 'since' (kể từ khi tốt nghiệp), ta dùng thì hiện tại hoàn thành: S + have/has + V3."
-        },
-        {
-          "id": "q_present_perf_2",
-          "questionText": "___ you ever ___ sushi before?",
-          "options": ["Did / eat", "Have / eaten", "Has / eaten", "Do / eat"],
-          "correctAnswerIndex": 1,
-          "explanation": "Câu hỏi về kinh nghiệm, trải nghiệm ('đã từng làm gì chưa') dùng thì hiện tại hoàn thành. Với chủ ngữ 'you', ta dùng 'Have' và động từ cột 3 'eaten'."
-        },
-        {
-          "id": "q_present_perf_3",
-          "questionText": "I can't go inside because I ___ my keys.",
-          "options": ["lost", "have lost", "lose", "am losing"],
-          "correctAnswerIndex": 1,
-          "explanation": "Hành động xảy ra trong quá khứ nhưng có kết quả/hậu quả liên quan trực tiếp đến hiện tại (bây giờ không vào nhà được vì đã mất chìa khóa), ta dùng thì hiện tại hoàn thành."
+          "explanation": "Negative in Past Simple uses 'didn't + base verb'."
         }
       ]
     },
     {
-      "id": "conditionals_0",
-      "topicId": "conditionals",
-      "title": "Câu Điều Kiện Loại 0 (Zero Conditional)",
-      "explanation": "Câu điều kiện loại 0 (Zero Conditional) dùng để diễn tả sự thật hiển nhiên, quy luật tự nhiên, hoặc kết quả tất yếu xảy ra khi điều kiện được đáp ứng. Cả mệnh đề điều kiện và mệnh đề kết quả đều dùng thì hiện tại đơn.",
-      "structure": "If + S + V (hiện tại đơn), S + V (hiện tại đơn)\n\nHoặc đảo: S + V (hiện tại đơn) + if + S + V (hiện tại đơn)",
+      "id": "modal_deduction",
+      "topicId": "auxiliaries",
+      "title": "Modal Verbs of Deduction",
+      "explanation": "Diễn tả sự suy đoán dựa trên chứng cứ ở hiện tại.",
+      "structure": "[S + must/might/can't + V]",
       "usage": [
-        "Diễn tả sự thật hiển nhiên, quy luật tự nhiên",
-        "Diễn tả kết quả tất yếu, luôn đúng khi điều kiện xảy ra",
-        "Dùng trong hướng dẫn, chỉ dẫn chung"
+        "Strong positive deduction (must).",
+        "Strong negative deduction (can't).",
+        "Possibility or uncertainty (might/could)."
       ],
       "examples": [
-        {"english": "If you heat water to 100°C, it boils.", "vietnamese": "Nếu bạn đun nước đến 100°C, nó sôi."},
-        {"english": "If it rains, the ground gets wet.", "vietnamese": "Nếu trời mưa, mặt đất bị ướt."},
-        {"english": "Plants die if they don't get water.", "vietnamese": "Cây chết nếu chúng không có nước."},
-        {"english": "If you mix red and blue, you get purple.", "vietnamese": "Nếu bạn trộn đỏ và xanh, bạn được màu tím."}
+        {
+          "english": "The lights are on. They must be at home.",
+          "vietnamese": "Suy đoán khẳng định chắc chắn"
+        },
+        {
+          "english": "She didn't answer. She might be sleeping.",
+          "vietnamese": "Suy đoán có khả năng xảy ra"
+        }
       ],
-      "notes": "📌 Có thể thay 'if' bằng 'when' vì kết quả luôn đúng.\n\n⚠️ Lưu ý: Câu điều kiện loại 0 khác loại 1 ở chỗ: loại 0 nói về sự thật chung, loại 1 nói về tình huống có thể xảy ra trong tương lai.",
-      "orderIndex": 0,
+      "notes": "Không dùng 'mustn't' để suy đoán phủ định, thay vào đó hãy dùng 'can't'.",
+      "orderIndex": 3,
       "questions": [
         {
-          "id": "q_cond_0_1",
-          "questionText": "If you ___ red and yellow, you ___ orange.",
-          "options": ["mix / get", "mixes / gets", "mixed / would get", "will mix / get"],
+          "id": "md_q1",
+          "questionText": "The lights are on. They ___ be at home.",
+          "options": [
+            "must",
+            "can't",
+            "might not",
+            "shouldn't"
+          ],
           "correctAnswerIndex": 0,
-          "explanation": "Sự thật khoa học hiển nhiên (trộn đỏ và vàng ra màu cam) được diễn tả bằng câu điều kiện loại 0. Cả hai vế điều kiện và kết quả đều chia ở thì hiện tại đơn."
+          "explanation": "We use 'must' for strong positive deduction based on evidence."
         },
         {
-          "id": "q_cond_0_2",
-          "questionText": "Ice melts if you ___ it.",
-          "options": ["will heat", "heat", "heats", "heated"],
+          "id": "md_q2",
+          "questionText": "She didn't answer. She ___ be sleeping.",
+          "options": [
+            "must",
+            "might",
+            "can't",
+            "should"
+          ],
           "correctAnswerIndex": 1,
-          "explanation": "Quy luật tự nhiên (đá tan khi đun nóng) dùng câu điều kiện loại 0. Với chủ ngữ 'you', động từ ở hiện tại đơn chia ở dạng nguyên thể 'heat'."
-        },
-        {
-          "id": "q_cond_0_3",
-          "questionText": "When it rains, the grass ___ wet.",
-          "options": ["gets", "get", "will get", "got"],
-          "correctAnswerIndex": 0,
-          "explanation": "Câu điều kiện loại 0 diễn tả sự thật luôn đúng. Trạng từ 'when' có thể thay thế cho 'if'. Với chủ ngữ số ít 'the grass', động từ 'get' thêm 's' thành 'gets'."
+          "explanation": "We use 'might' or 'could' for possibility (it is possible she is sleeping)."
         }
       ]
+    }
+  ],
+  "vocabularies": [
+    {
+      "word": "Paradigm",
+      "meaning": "Mô hình, kiểu mẫu",
+      "example": "A typical example or pattern of something.",
+      "phonetic": "/ˈpærədaɪm/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
     },
     {
-      "id": "conditionals_1",
-      "topicId": "conditionals",
-      "title": "Câu Điều Kiện Loại 1 (First Conditional)",
-      "explanation": "Câu điều kiện loại 1 (First Conditional) dùng để diễn tả tình huống có thể xảy ra trong tương lai và kết quả có khả năng thực hiện. Điều kiện là có thật và có khả năng xảy ra.",
-      "structure": "If + S + V (hiện tại đơn), S + will/can/may + V (nguyên thể)\n\nHoặc đảo: S + will + V + if + S + V (hiện tại đơn)",
-      "usage": [
-        "Diễn tả tình huống có thể xảy ra trong hiện tại hoặc tương lai",
-        "Đưa ra lời cảnh báo hoặc đe dọa",
-        "Đưa ra lời hứa hoặc đề nghị",
-        "Đưa ra lời khuyên"
-      ],
-      "examples": [
-        {"english": "If it rains tomorrow, I will stay home.", "vietnamese": "Nếu ngày mai trời mưa, tôi sẽ ở nhà."},
-        {"english": "If you study hard, you will pass the exam.", "vietnamese": "Nếu bạn học chăm chỉ, bạn sẽ đậu kỳ thi."},
-        {"english": "I will help you if you ask me.", "vietnamese": "Tôi sẽ giúp bạn nếu bạn nhờ tôi."},
-        {"english": "If you don't hurry, you will miss the bus.", "vietnamese": "Nếu bạn không nhanh lên, bạn sẽ lỡ xe buýt."}
-      ],
-      "notes": "📌 Dấu hiệu: Mệnh đề 'if' dùng thì hiện tại đơn, mệnh đề chính dùng 'will/can/may + V'.\n\n⚠️ Lưu ý quan trọng: KHÔNG dùng 'will' trong mệnh đề 'if'!\n- Sai: If it will rain...\n- Đúng: If it rains...\n\nCó thể thay 'will' bằng 'can', 'may', 'might', 'should' tùy mức độ chắc chắn.",
-      "orderIndex": 1,
-      "questions": [
-        {
-          "id": "q_cond_1_1",
-          "questionText": "If she ___, she ___ the train.",
-          "options": ["doesn't hurry / will miss", "won't hurry / misses", "doesn't hurry / misses", "didn't hurry / would miss"],
-          "correctAnswerIndex": 0,
-          "explanation": "Câu điều kiện loại 1 diễn tả sự việc có thể xảy ra ở hiện tại hoặc tương lai. Mệnh đề 'if' chia ở hiện tại đơn ('doesn't hurry'), mệnh đề chính chia ở tương lai đơn ('will miss')."
-        },
-        {
-          "id": "q_cond_1_2",
-          "questionText": "I will call you if I ___ any news.",
-          "options": ["will hear", "hear", "hears", "heard"],
-          "correctAnswerIndex": 1,
-          "explanation": "Lưu ý quan trọng trong câu điều kiện loại 1: KHÔNG dùng 'will' trong mệnh đề 'if'. Mệnh đề 'if' phải dùng thì hiện tại đơn ('hear')."
-        },
-        {
-          "id": "q_cond_1_3",
-          "questionText": "If they study hard, they ___ pass the exam easily.",
-          "options": ["would", "could", "can", "did"],
-          "correctAnswerIndex": 2,
-          "explanation": "Trong mệnh đề chính của câu điều kiện loại 1, ngoài 'will' ta có thể dùng các động từ khuyết thiếu như 'can', 'may', 'should' để chỉ khả năng hoặc lời khuyên."
-        }
-      ]
+      "word": "Epistemology",
+      "meaning": "Nhận thức luận",
+      "example": "The theory of knowledge, especially methods and validity.",
+      "phonetic": "/ɪˌpɪstəˈmɒlədʒi/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
     },
     {
-      "id": "conditionals_2",
-      "topicId": "conditionals",
-      "title": "Câu Điều Kiện Loại 2 (Second Conditional)",
-      "explanation": "Câu điều kiện loại 2 (Second Conditional) dùng để diễn tả tình huống giả định không có thật ở hiện tại, hoặc điều kiện không thể hoặc khó có thể xảy ra. Thường dùng để tưởng tượng, mơ ước, hoặc đưa ra lời khuyên.",
-      "structure": "If + S + V (quá khứ đơn), S + would/could/might + V (nguyên thể)\n\n⚠️ Đặc biệt: Với 'to be', dùng 'were' cho tất cả các ngôi.\nIf I were you, I would...",
-      "usage": [
-        "Diễn tả tình huống giả định, không có thật ở hiện tại",
-        "Diễn tả ước muốn, mơ ước không thực tế",
-        "Đưa ra lời khuyên (If I were you...)",
-        "Nói về điều không thể xảy ra hoặc rất khó xảy ra"
-      ],
-      "examples": [
-        {"english": "If I had a million dollars, I would travel the world.", "vietnamese": "Nếu tôi có một triệu đô la, tôi sẽ đi du lịch vòng quanh thế giới."},
-        {"english": "If I were you, I would study harder.", "vietnamese": "Nếu tôi là bạn, tôi sẽ học chăm chỉ hơn."},
-        {"english": "If she spoke English fluently, she could get that job.", "vietnamese": "Nếu cô ấy nói được tiếng Anh trôi chảy, cô ấy có thể nhận được công việc đó."},
-        {"english": "What would you do if you won the lottery?", "vietnamese": "Bạn sẽ làm gì nếu bạn trúng xổ số?"}
-      ],
-      "notes": "📌 Phân biệt với loại 1:\n- Loại 1: If it rains, I will stay home. (Có thể xảy ra)\n- Loại 2: If it rained, I would stay home. (Giả định, không thật)\n\n⚠️ Lưu ý: 'were' dùng cho tất cả các ngôi (I were, he were, she were, they were) trong văn phong trang trọng.\n\n💡 Mẹo: Luôn dùng 'If I were you...' (không dùng 'was') khi cho lời khuyên.",
-      "orderIndex": 2,
-      "questions": [
-        {
-          "id": "q_cond_2_1",
-          "questionText": "If I ___ a bird, I ___ fly anywhere.",
-          "options": ["was / will", "were / would", "am / can", "had been / would"],
-          "correctAnswerIndex": 1,
-          "explanation": "Câu điều kiện loại 2 diễn tả giả định không có thật ở hiện tại. Mệnh đề 'if' dùng động từ 'to be' chia là 'were' cho mọi ngôi, mệnh đề chính dùng 'would/could + V-inf'."
-        },
-        {
-          "id": "q_cond_2_2",
-          "questionText": "If she spoke English fluently, she ___ a better job.",
-          "options": ["will get", "gets", "would get", "got"],
-          "correctAnswerIndex": 2,
-          "explanation": "Giả định không có thật ở hiện tại (thực tế cô ấy không nói tiếng Anh trôi chảy). Vế 'if' chia ở quá khứ đơn ('spoke'), vế chính dùng 'would/could + V-inf' ('would get')."
-        },
-        {
-          "id": "q_cond_2_3",
-          "questionText": "If I were you, I ___ that expensive phone.",
-          "options": ["won't buy", "didn't buy", "wouldn't buy", "don't buy"],
-          "correctAnswerIndex": 2,
-          "explanation": "Cấu trúc 'If I were you...' dùng để đưa ra lời khuyên ở câu điều kiện loại 2. Mệnh đề chính dùng 'wouldn't + V-inf' để khuyên không nên mua."
-        }
-      ]
+      "word": "Pragmatic",
+      "meaning": "Thực tế, thực dụng",
+      "example": "Dealing with things sensibly and realistically.",
+      "phonetic": "/præɡˈmætɪk/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Empirical",
+      "meaning": "Thực nghiệm",
+      "example": "Based on observation or experience.",
+      "phonetic": "/ɪmˈpɪrɪkl/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Synthesis",
+      "meaning": "Sự tổng hợp",
+      "example": "The combination of components to form a whole.",
+      "phonetic": "/ˈsɪnθəsɪs/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Methodology",
+      "meaning": "Phương pháp luận",
+      "example": "A system of methods used in a study.",
+      "phonetic": "/ˌmeθəˈdɒlədʒi/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Hypothesis",
+      "meaning": "Giả thuyết",
+      "example": "A proposed explanation made on limited evidence.",
+      "phonetic": "/haɪˈpɒθəsɪs/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Objective",
+      "meaning": "Khách quan",
+      "example": "Not influenced by personal feelings.",
+      "phonetic": "/əbˈdʒektɪv/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Theoretical",
+      "meaning": "Lý thuyết",
+      "example": "Concerned with theory rather than practice.",
+      "phonetic": "/θɪəˈretɪkl/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Abstract",
+      "meaning": "Trừu tượng",
+      "example": "Existing in thought but not concrete.",
+      "phonetic": "/ˈæbstrækt/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Cognitive",
+      "meaning": "Nhận thức",
+      "example": "Relating to mental processes.",
+      "phonetic": "/ˈkɒɡnɪtɪv/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Deduce",
+      "meaning": "Suy luận",
+      "example": "Arrive at a fact by reasoning.",
+      "phonetic": "/dɪˈdjuːs/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Evaluate",
+      "meaning": "Đánh giá",
+      "example": "Form an idea of the value of.",
+      "phonetic": "/ɪˈvæljueɪt/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Analysis",
+      "meaning": "Sự phân tích",
+      "example": "Detailed examination of elements or structure.",
+      "phonetic": "/əˈnælɪsɪs/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Concept",
+      "meaning": "Khái niệm",
+      "example": "An abstract idea or general notion.",
+      "phonetic": "/ˈkɒnsept/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Dimension",
+      "meaning": "Chiều, khía cạnh",
+      "example": "A measurable extent of some kind.",
+      "phonetic": "/daɪˈmenʃn/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Entity",
+      "meaning": "Thực thể",
+      "example": "A thing with distinct existence.",
+      "phonetic": "/ˈentəti/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Equivalent",
+      "meaning": "Tương đương",
+      "example": "Equal in value, function, meaning.",
+      "phonetic": "/ɪˈkwɪvələnt/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Framework",
+      "meaning": "Khuôn khổ, cơ cấu",
+      "example": "An essential supporting structure.",
+      "phonetic": "/ˈfreɪmwɜːk/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Integrate",
+      "meaning": "Tích hợp",
+      "example": "Combine one thing with another.",
+      "phonetic": "/ˈɪntɪɡreɪt/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Qualitative",
+      "meaning": "Định tính",
+      "example": "Relating to quality of something.",
+      "phonetic": "/ˈkwɒlɪtətɪv/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Quantitative",
+      "meaning": "Định lượng",
+      "example": "Relating to quantity of something.",
+      "phonetic": "/ˈkwɒntɪtətɪv/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Validity",
+      "meaning": "Tính hợp lệ",
+      "example": "The quality of being logically sound.",
+      "phonetic": "/vəˈlɪdəti/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Variable",
+      "meaning": "Biến số",
+      "example": "An element liable to change.",
+      "phonetic": "/ˈveəriəbl/",
+      "topic": "Academic",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Revenue",
+      "meaning": "Doanh thu",
+      "example": "Income, especially when of a company.",
+      "phonetic": "/ˈrevənjuː/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Asset",
+      "meaning": "Tài sản",
+      "example": "A useful or valuable quality or thing.",
+      "phonetic": "/ˈæset/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Liability",
+      "meaning": "Nợ phải trả",
+      "example": "The state of being responsible for something.",
+      "phonetic": "/ˌlaɪəˈbɪləti/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Equity",
+      "meaning": "Vốn chủ sở hữu",
+      "example": "The value of the shares issued.",
+      "phonetic": "/ˈekwɪti/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Merger",
+      "meaning": "Sự sáp nhập",
+      "example": "A combination of two companies.",
+      "phonetic": "/ˈmɜːdʒə/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Acquisition",
+      "meaning": "Sự mua lại",
+      "example": "An asset or object bought.",
+      "phonetic": "/ˌækwɪˈzɪʃn/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Commodity",
+      "meaning": "Hàng hóa",
+      "example": "A raw material or primary product.",
+      "phonetic": "/kəˈmɒdəti/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Inflation",
+      "meaning": "Sự lạm phát",
+      "example": "A general increase in prices.",
+      "phonetic": "/ɪnˈfleɪʃn/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Deficit",
+      "meaning": "Thâm hụt",
+      "example": "Amount by which something is too small.",
+      "phonetic": "/ˈdefɪsɪt/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Dividend",
+      "meaning": "Cổ tức",
+      "example": "Money paid regularly to shareholders.",
+      "phonetic": "/ˈdɪvɪdend/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Leverage",
+      "meaning": "Đòn bẩy",
+      "example": "Use of borrowed money for investment.",
+      "phonetic": "/ˈliːvərɪdʒ/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Portfolio",
+      "meaning": "Danh mục đầu tư",
+      "example": "A range of investments held.",
+      "phonetic": "/pɔːtˈfəʊliəʊ/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Liquidity",
+      "meaning": "Tính thanh khoản",
+      "example": "Availability of liquid assets.",
+      "phonetic": "/lɪˈkwɪdəti/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Synergy",
+      "meaning": "Sự hiệp lực",
+      "example": "Interaction of two or more organizations.",
+      "phonetic": "/ˈsɪnədʒi/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Venture",
+      "meaning": "Liên doanh, dự án mạo hiểm",
+      "example": "A risky journey or undertaking.",
+      "phonetic": "/ˈventʃə/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Outsourcing",
+      "meaning": "Thuê ngoài",
+      "example": "Obtain goods/services from outside.",
+      "phonetic": "/ˈaʊtsɔːsɪŋ/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Capital",
+      "meaning": "Vốn",
+      "example": "Wealth in the form of money/assets.",
+      "phonetic": "/ˈkæpɪtl/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Monopoly",
+      "meaning": "Độc quyền",
+      "example": "Exclusive control of supply/trade.",
+      "phonetic": "/məˈnɒpəli/",
+      "topic": "Business",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Persistence",
+      "meaning": "Sự kiên trì",
+      "example": "Firm continuance in spite of difficulty.",
+      "phonetic": "/pər'sistəns/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Benevolent",
+      "meaning": "Nhân từ",
+      "example": "Well meaning and kindly.",
+      "phonetic": "/bəˈnevələnt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Resilience",
+      "meaning": "Sức bật, kiên cường",
+      "example": "Capacity to recover quickly.",
+      "phonetic": "/rəˈzilyəns/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Acquire",
+      "meaning": "Đạt được, thu được",
+      "example": "Buy or obtain for oneself.",
+      "phonetic": "/əˈkwaɪə/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Superfluous",
+      "meaning": "Dư thừa, vô dụng",
+      "example": "Unnecessary, more than enough.",
+      "phonetic": "/soopərflooəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Obsolete",
+      "meaning": "Cũ, lỗi thời",
+      "example": "No longer produced or used.",
+      "phonetic": "/ˈɒbsəliːt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Ephemeral",
+      "meaning": "Phù du, chóng tàn",
+      "example": "Lasting for a very short time.",
+      "phonetic": "/ɪˈfemərəl/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Mitigate",
+      "meaning": "Giảm nhẹ, giảm bớt",
+      "example": "Make less severe or painful.",
+      "phonetic": "/ˈmɪtɪɡeɪt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Pragmatic",
+      "meaning": "Thực dụng, thực tế",
+      "example": "Sensible and realistic.",
+      "phonetic": "/præɡˈmætɪk/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Ubiquitous",
+      "meaning": "Phổ biến, khắp nơi",
+      "example": "Found everywhere.",
+      "phonetic": "/juːˈbɪkwɪtəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Capricious",
+      "meaning": "Thất thường, dễ thay đổi",
+      "example": "Given to sudden changes of mood.",
+      "phonetic": "/kəˈprɪʃəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Elusive",
+      "meaning": "Khó tìm, lẩn tránh",
+      "example": "Difficult to find or achieve.",
+      "phonetic": "/ɪˈluːsɪv/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Fortuitous",
+      "meaning": "Tình cờ, may mắn",
+      "example": "Happening by a lucky chance.",
+      "phonetic": "/fɔːˈtjuːɪtəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Indifferent",
+      "meaning": "Thờ ơ, vô tâm",
+      "example": "Having no interest or sympathy.",
+      "phonetic": "/ɪnˈdɪfrənt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Lucid",
+      "meaning": "Rõ ràng, dễ hiểu",
+      "example": "Expressed clearly; easy to understand.",
+      "phonetic": "/ˈluːsɪd/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Meticulous",
+      "meaning": "Tỉ mỉ, kỹ càng",
+      "example": "Showing great attention to detail.",
+      "phonetic": "/mɪˈtɪkjələs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Novel",
+      "meaning": "Mới lạ, độc đáo",
+      "example": "New or unusual.",
+      "phonetic": "/ˈnɒvl/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Plausible",
+      "meaning": "Hợp lý, đáng tin",
+      "example": "Seeming reasonable or probable.",
+      "phonetic": "/ˈplɔːzəbl/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Redundant",
+      "meaning": "Thừa thãi",
+      "example": "No longer needed or useful.",
+      "phonetic": "/rɪˈdʌndənt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Scrutinize",
+      "meaning": "Xem xét kỹ lưỡng",
+      "example": "Examine or inspect closely.",
+      "phonetic": "/ˈskruːtənaɪz/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Tacit",
+      "meaning": "Ngầm, không nói ra",
+      "example": "Understood without being stated.",
+      "phonetic": "/ˈtæsɪt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Transient",
+      "meaning": "Tạm thời, ngắn ngủi",
+      "example": "Lasting only for a short time.",
+      "phonetic": "/ˈtrænziənt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Vindicate",
+      "meaning": "Minh oan, chứng minh",
+      "example": "Clear someone of blame.",
+      "phonetic": "/ˈvɪndɪkeɪt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Zeal",
+      "meaning": "Sự hăng hái, nhiệt huyết",
+      "example": "Great energy or enthusiasm.",
+      "phonetic": "/ziːl/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Apathy",
+      "meaning": "Sự thờ ơ, lãnh đạm",
+      "example": "Lack of interest or concern.",
+      "phonetic": "/ˈæpəθi/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Condone",
+      "meaning": "Dung túng, bỏ qua",
+      "example": "Accept and allow bad behavior.",
+      "phonetic": "/kənˈdəʊn/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Disdain",
+      "meaning": "Sự khinh bỉ",
+      "example": "Feeling that something is unworthy.",
+      "phonetic": "/dɪsˈdeɪn/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Enigma",
+      "meaning": "Điều bí ẩn",
+      "example": "Person or thing that is mysterious.",
+      "phonetic": "/ɪˈnɪɡmə/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Frugal",
+      "meaning": "Tiết kiệm, thanh đạm",
+      "example": "Sparing or economical.",
+      "phonetic": "/ˈfruːɡl/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Gregarious",
+      "meaning": "Thích giao du, hòa đồng",
+      "example": "Fond of company; sociable.",
+      "phonetic": "/ɡrɪˈɡeəriəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Haughty",
+      "meaning": "Kiêu ngạo, kiêu kỳ",
+      "example": "Arrogantly superior.",
+      "phonetic": "/ˈhɔːti/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Immutable",
+      "meaning": "Không đổi, bất biến",
+      "example": "Unchanging over time.",
+      "phonetic": "/ɪˈmjuːtəbl/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Kindle",
+      "meaning": "Nhen nhóm, kích thích",
+      "example": "Light fire; arouse or inspire.",
+      "phonetic": "/ˈkɪndl/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Loquacious",
+      "meaning": "Nói nhiều, ba hoa",
+      "example": "Tending to talk a great deal.",
+      "phonetic": "/ləʊˈkweɪʃəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Magnanimous",
+      "meaning": "Hào hiệp, bao dung",
+      "example": "Very generous or forgiving.",
+      "phonetic": "/mæɡˈnænɪməs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Nefarious",
+      "meaning": "Hung ác, bất chính",
+      "example": "Wicked or criminal.",
+      "phonetic": "/nɪˈfeəriəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Placate",
+      "meaning": "Xoa dịu, làm nguôi giận",
+      "example": "Make someone less angry.",
+      "phonetic": "/pləˈkeɪt/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Reclusive",
+      "meaning": "Ẩn dật, cô độc",
+      "example": "Avoiding company of other people.",
+      "phonetic": "/rɪˈkluːsɪv/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Sanctuary",
+      "meaning": "Nơi trú ẩn",
+      "example": "A place of safety or refuge.",
+      "phonetic": "/ˈsæŋktʃuəri/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Trepidation",
+      "meaning": "Sự bối rối, lo âu",
+      "example": "A feeling of fear or agitation.",
+      "phonetic": "/ˌtrepɪˈdeɪʃn/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Usurp",
+      "meaning": "Chiếm đoạt",
+      "example": "Take power illegally or by force.",
+      "phonetic": "/juːˈzɜːp/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Vociferous",
+      "meaning": "Ồn ào, om sòm",
+      "example": "Vehement or clamorous.",
+      "phonetic": "/vəʊˈsɪfərəs/",
+      "topic": "General",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Itinerary",
+      "meaning": "Lịch trình, hành trình",
+      "example": "A planned route or journey.",
+      "phonetic": "/aɪˈtɪnərəri/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Destination",
+      "meaning": "Điểm đến",
+      "example": "The place to which someone is going.",
+      "phonetic": "/ˌdestɪˈneɪʃn/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "BEGINNER"
+    },
+    {
+      "word": "Accommodation",
+      "meaning": "Chỗ ở, nơi lưu trú",
+      "example": "A room or building in which someone stays.",
+      "phonetic": "/əˌkɒməˈdeɪʃn/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Embark",
+      "meaning": "Lên tàu, bắt đầu",
+      "example": "Go on board a ship or begin a journey.",
+      "phonetic": "/ɪmˈbɑːk/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Excursion",
+      "meaning": "Chuyến tham quan",
+      "example": "A short journey or trip.",
+      "phonetic": "/ɪkˈskɜːʃn/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Souvenir",
+      "meaning": "Quà lưu niệm",
+      "example": "A thing kept as a reminder of a place.",
+      "phonetic": "/ˌsuːvəˈnɪə/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "BEGINNER"
+    },
+    {
+      "word": "Expedition",
+      "meaning": "Cuộc thám hiểm",
+      "example": "A journey for a particular purpose.",
+      "phonetic": "/ˌekspəˈdɪʃn/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Passport",
+      "meaning": "Hộ chiếu",
+      "example": "An official document for international travel.",
+      "phonetic": "/ˈpɑːspɔːt/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "BEGINNER"
+    },
+    {
+      "word": "Luggage",
+      "meaning": "Hành lý",
+      "example": "Bags and suitcases for traveling.",
+      "phonetic": "/ˈlʌɡɪdʒ/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "BEGINNER"
+    },
+    {
+      "word": "Wanderlust",
+      "meaning": "Đam mê du lịch",
+      "example": "A strong desire to travel.",
+      "phonetic": "/ˈwɒndəlʌst/",
+      "topic": "Travel",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Algorithm",
+      "meaning": "Thuật toán",
+      "example": "A process or set of rules in calculations.",
+      "phonetic": "/ˈælɡərɪðəm/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Database",
+      "meaning": "Cơ sở dữ liệu",
+      "example": "A structured set of data held in a computer.",
+      "phonetic": "/ˈdeɪtəbeɪs/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Encrypt",
+      "meaning": "Mã hóa",
+      "example": "Convert data into a coded form.",
+      "phonetic": "/ɪnˈkrɪpt/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Bandwidth",
+      "meaning": "Băng thông",
+      "example": "The capacity of data transfer.",
+      "phonetic": "/ˈbændwɪdθ/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Compile",
+      "meaning": "Biên dịch",
+      "example": "Convert source code into machine code.",
+      "phonetic": "/kəmˈpaɪl/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "VERB",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Framework",
+      "meaning": "Khung làm việc",
+      "example": "A basic structure underlying a system.",
+      "phonetic": "/ˈfreɪmwɜːk/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Interface",
+      "meaning": "Giao diện",
+      "example": "A point of interaction between components.",
+      "phonetic": "/ˈɪntəfeɪs/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Latency",
+      "meaning": "Độ trễ",
+      "example": "The delay before a transfer of data begins.",
+      "phonetic": "/ˈleɪtənsi/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "ADVANCED"
+    },
+    {
+      "word": "Repository",
+      "meaning": "Kho lưu trữ",
+      "example": "A central place where data is stored.",
+      "phonetic": "/rɪˈpɒzɪtəri/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "NOUN",
+      "difficulty": "INTERMEDIATE"
+    },
+    {
+      "word": "Scalable",
+      "meaning": "Có khả năng mở rộng",
+      "example": "Able to be changed in size or scale.",
+      "phonetic": "/ˈskeɪləbl/",
+      "topic": "Technology",
+      "isFavorite": false,
+      "isLearned": false,
+      "partOfSpeech": "ADJECTIVE",
+      "difficulty": "ADVANCED"
     }
   ]
 }

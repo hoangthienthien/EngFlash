@@ -7,9 +7,21 @@ import com.example.engflash.data.local.database.DatabaseProvider
 import com.example.engflash.data.remote.auth.AuthRepositoryImpl
 import com.example.engflash.data.repository.GrammarRepositoryImpl
 import com.example.engflash.data.repository.TopicRepositoryImpl
+import com.example.engflash.data.repository.VocabularyRepositoryImpl
+import com.example.engflash.data.repository.UserRepositoryImpl
 import com.example.engflash.domain.repository.AuthRepository
 import com.example.engflash.domain.repository.GrammarRepository
 import com.example.engflash.domain.repository.TopicRepository
+import com.example.engflash.domain.repository.VocabularyRepository
+import com.example.engflash.domain.repository.UserRepository
+import com.example.engflash.domain.usecase.AddVocabularyUseCase
+import com.example.engflash.domain.usecase.GetUniqueVocabTopicsUseCase
+import com.example.engflash.domain.usecase.GetFavoriteVocabulariesUseCase
+import com.example.engflash.domain.usecase.GetVocabulariesByTopicUseCase
+import com.example.engflash.domain.usecase.MarkVocabularyAsLearnedUseCase
+import com.example.engflash.domain.usecase.ToggleVocabularyFavoriteUseCase
+import com.example.engflash.domain.usecase.GetUserProfileUseCase
+import com.example.engflash.domain.usecase.UpdateUserProfileUseCase
 import com.example.engflash.domain.usecase.auth.GetCurrentUserUseCase
 import com.example.engflash.domain.usecase.auth.IsLoggedInUseCase
 import com.example.engflash.domain.usecase.auth.LoginUseCase
@@ -20,6 +32,7 @@ import com.example.engflash.domain.usecase.auth.SendPasswordResetEmailUseCase
 import com.example.engflash.domain.usecase.grammar.GetGrammarByIdUseCase
 import com.example.engflash.domain.usecase.grammar.GetGrammarByTopicUseCase
 import com.example.engflash.domain.usecase.topic.GetAllTopicsUseCase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,6 +63,14 @@ class EngFlashApplication : Application() {
 
     private val grammarRepository: GrammarRepository by lazy {
         GrammarRepositoryImpl(database.grammarDao())
+    }
+
+    private val vocabularyRepository: VocabularyRepository by lazy {
+        VocabularyRepositoryImpl(database.vocabularyDao())
+    }
+
+    private val userRepository: UserRepository by lazy {
+        UserRepositoryImpl(database.userProfileDao(), FirebaseFirestore.getInstance())
     }
 
     // ─── Auth UseCases ───────────────────────────────────
@@ -93,6 +114,40 @@ class EngFlashApplication : Application() {
 
     val getGrammarByIdUseCase: GetGrammarByIdUseCase by lazy {
         GetGrammarByIdUseCase(grammarRepository)
+    }
+
+    // ─── Vocabulary UseCases ─────────────────────────────
+    val getVocabulariesByTopicUseCase: GetVocabulariesByTopicUseCase by lazy {
+        GetVocabulariesByTopicUseCase(vocabularyRepository)
+    }
+
+    val getFavoriteVocabulariesUseCase: GetFavoriteVocabulariesUseCase by lazy {
+        GetFavoriteVocabulariesUseCase(vocabularyRepository)
+    }
+
+    val markVocabularyAsLearnedUseCase: MarkVocabularyAsLearnedUseCase by lazy {
+        MarkVocabularyAsLearnedUseCase(vocabularyRepository)
+    }
+
+    val toggleVocabularyFavoriteUseCase: ToggleVocabularyFavoriteUseCase by lazy {
+        ToggleVocabularyFavoriteUseCase(vocabularyRepository)
+    }
+
+    val addVocabularyUseCase: AddVocabularyUseCase by lazy {
+        AddVocabularyUseCase(vocabularyRepository)
+    }
+
+    val getUniqueVocabTopicsUseCase: GetUniqueVocabTopicsUseCase by lazy {
+        GetUniqueVocabTopicsUseCase(vocabularyRepository)
+    }
+
+    // ─── User Profile UseCases ───────────────────────────
+    val getUserProfileUseCase: GetUserProfileUseCase by lazy {
+        GetUserProfileUseCase(userRepository)
+    }
+
+    val updateUserProfileUseCase: UpdateUserProfileUseCase by lazy {
+        UpdateUserProfileUseCase(userRepository)
     }
 
     override fun onCreate() {

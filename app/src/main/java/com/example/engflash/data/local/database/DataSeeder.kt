@@ -3,6 +3,7 @@ package com.example.engflash.data.local.database
 import android.content.Context
 import com.example.engflash.data.local.entity.GrammarEntity
 import com.example.engflash.data.local.entity.TopicEntity
+import com.example.engflash.data.local.entity.VocabularyEntity
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -49,11 +50,12 @@ private data class GrammarRuleSeed(
 }
 
 /**
- * Dữ liệu gốc trong file JSON (chứa cả topics & grammarRules).
+ * Dữ liệu gốc trong file JSON (chứa topics, grammarRules, & vocabularies).
  */
 private data class SeedData(
     val topics: List<TopicEntity>,
-    val grammarRules: List<GrammarRuleSeed>
+    val grammarRules: List<GrammarRuleSeed>,
+    val vocabularies: List<VocabularyEntity>
 )
 
 class DataSeeder(
@@ -66,7 +68,6 @@ class DataSeeder(
      */
     suspend fun seedIfNeeded() = withContext(Dispatchers.IO) {
         val topicCount = database.topicDao().getCount()
-        if (topicCount > 0) return@withContext // Đã seed rồi, bỏ qua
 
         val jsonString = context.assets
             .open("data.json")
@@ -78,7 +79,12 @@ class DataSeeder(
 
         val grammarEntities = seedData.grammarRules.map { it.toEntity(gson) }
 
-        database.topicDao().insertAll(seedData.topics)
+        if (topicCount == 0) {
+            database.topicDao().insertAll(seedData.topics)
+            database.vocabularyDao().insertAll(seedData.vocabularies)
+        }
+        
+        // Always refresh grammar rules to ensure latest seed rules exist
         database.grammarDao().insertAll(grammarEntities)
     }
 }

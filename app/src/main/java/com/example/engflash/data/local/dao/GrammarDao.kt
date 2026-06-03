@@ -16,6 +16,9 @@ interface GrammarDao {
     @Query("SELECT * FROM grammar_rules WHERE id = :id LIMIT 1")
     fun getGrammarById(id: String): Flow<GrammarEntity?>
 
+    @Query("SELECT * FROM grammar_rules ORDER BY orderIndex ASC")
+    fun getAllGrammarRules(): Flow<List<GrammarEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(grammars: List<GrammarEntity>)
 
