@@ -1,13 +1,13 @@
 package com.example.engflash.ui.vocabulary
 
-import android.graphics.BitmapFactory
 import android.speech.tts.TextToSpeech
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.graphics.PathFillType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -31,7 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -42,9 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.engflash.domain.model.Vocabulary
 import com.example.engflash.ui.navigation.Routes
-import com.example.engflash.ui.theme.GradientEnd
-import com.example.engflash.ui.theme.GradientMiddle
-import com.example.engflash.ui.theme.GradientStart
+
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +52,7 @@ fun FlashcardScreen(
     viewModel: FlashcardViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val currentStreak by viewModel.streakManager.currentStreak.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     // Initialize TTS
@@ -114,10 +113,10 @@ fun FlashcardScreen(
                             Icon(
                                 imageVector = FireIcon,
                                 contentDescription = "Streak",
-                                tint = Color(0xFFFF6B35),
+                                tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(18.dp)
                             )
-                            Text("12", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            Text("$currentStreak", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
                         }
                     }
                 },
@@ -266,7 +265,7 @@ fun FlashcardScreen(
                         Text(
                             "Bạn đã ôn tập xong tất cả các từ trong danh mục này. Hãy chọn danh mục khác hoặc thêm từ mới để tiếp tục học tập nhé!",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                     }
@@ -340,7 +339,7 @@ fun FlashcardScreen(
                             Text(
                                 "Tiến độ học tập",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 "$completedCount / $initialCount thẻ",
@@ -400,7 +399,7 @@ fun FlashcardScreen(
                                 clip = false
                             ),
                         shape = RoundedCornerShape(28.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         if (rotation < 90f) {
                             // FRONT SIDE
@@ -481,7 +480,7 @@ fun FlashcardScreen(
                                             Text(
                                                 text = currentVocab.phonetic,
                                                 style = MaterialTheme.typography.titleMedium,
-                                                color = Color.Gray,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 textAlign = TextAlign.Center
                                             )
                                         }
@@ -494,7 +493,7 @@ fun FlashcardScreen(
                                                 .fillMaxWidth()
                                                 .height(180.dp)
                                                 .clip(RoundedCornerShape(20.dp))
-                                                .background(Color(0xFFF5F5FA)),
+                                                .background(MaterialTheme.colorScheme.surfaceVariant),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             NetworkImage(
@@ -507,7 +506,7 @@ fun FlashcardScreen(
                                         Text(
                                             "Chạm để lật thẻ",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = Color.LightGray
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                         )
                                     }
                                 } else {
@@ -555,7 +554,7 @@ fun FlashcardScreen(
                                             Text(
                                                 text = currentVocab.phonetic,
                                                 style = MaterialTheme.typography.titleLarge,
-                                                color = Color.Gray,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 textAlign = TextAlign.Center
                                             )
                                         }
@@ -565,7 +564,7 @@ fun FlashcardScreen(
                                     Text(
                                         text = "Chạm để lật thẻ",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color.LightGray,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                         modifier = Modifier.align(Alignment.BottomCenter)
                                     )
                                 }
@@ -575,13 +574,13 @@ fun FlashcardScreen(
                                     onClick = { viewModel.removeFromFlashcard() },
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
-                                        .background(Color(0xFFE53935).copy(alpha = 0.15f), CircleShape)
+                                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f), CircleShape)
                                         .size(36.dp)
                                 ) {
                                     Icon(
                                         imageVector = CloseIcon,
                                         contentDescription = "Xóa khỏi Flashcard",
-                                        tint = Color(0xFFE53935),
+                                        tint = MaterialTheme.colorScheme.error,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
@@ -605,7 +604,7 @@ fun FlashcardScreen(
                                     Text(
                                         text = currentVocab.word,
                                         style = MaterialTheme.typography.titleMedium,
-                                        color = Color.Gray,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -670,7 +669,7 @@ fun FlashcardScreen(
                                 Text(
                                     "Chạm để lật lại",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color.LightGray
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                 )
                             }
                         }
@@ -710,8 +709,8 @@ fun FlashcardScreen(
                                     modifier = Modifier
                                         .size(52.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFFEE2E2))
-                                        .border(1.5.dp, Color(0xFFFCA5A5), CircleShape)
+                                        .background(MaterialTheme.colorScheme.errorContainer)
+                                        .border(1.5.dp, MaterialTheme.colorScheme.error, CircleShape)
                                         .clickable { viewModel.reviewCard(currentVocab.id, "yếu") },
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -719,11 +718,11 @@ fun FlashcardScreen(
                                         text = "20",
                                         fontWeight = FontWeight.ExtraBold,
                                         fontSize = 16.sp,
-                                        color = Color(0xFFDC2626)
+                                        color = MaterialTheme.colorScheme.error
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Yếu", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                                Text("Yếu", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
 
                             // Circular Button 50 (Được)
@@ -735,8 +734,8 @@ fun FlashcardScreen(
                                     modifier = Modifier
                                         .size(52.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFEFF6FF))
-                                        .border(1.5.dp, Color(0xFF93C5FD), CircleShape)
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                        .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                         .clickable { viewModel.reviewCard(currentVocab.id, "được") },
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -744,11 +743,11 @@ fun FlashcardScreen(
                                         text = "50",
                                         fontWeight = FontWeight.ExtraBold,
                                         fontSize = 16.sp,
-                                        color = Color(0xFF1D4ED8)
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Được", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                                Text("Được", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
 
                             // Circular Button 80 (Giỏi)
@@ -760,8 +759,8 @@ fun FlashcardScreen(
                                     modifier = Modifier
                                         .size(52.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFECFDF5))
-                                        .border(1.5.dp, Color(0xFF6EE7B7), CircleShape)
+                                        .background(MaterialTheme.colorScheme.tertiaryContainer)
+                                        .border(1.5.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
                                         .clickable { viewModel.reviewCard(currentVocab.id, "giỏi") },
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -769,11 +768,11 @@ fun FlashcardScreen(
                                         text = "80",
                                         fontWeight = FontWeight.ExtraBold,
                                         fontSize = 16.sp,
-                                        color = Color(0xFF047857)
+                                        color = MaterialTheme.colorScheme.tertiary
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Giỏi", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                                Text("Giỏi", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
@@ -795,32 +794,15 @@ fun NetworkImage(
     contentDescription: String?,
     modifier: Modifier = Modifier
 ) {
-    var bitmap by remember(url) { mutableStateOf<android.graphics.Bitmap?>(null) }
-    LaunchedEffect(url) {
-        kotlin.runCatching {
-            withContext(Dispatchers.IO) {
-                if (url.startsWith("http://") || url.startsWith("https://")) {
-                    val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
-                    connection.doInput = true
-                    connection.connect()
-                    connection.inputStream.use {
-                        BitmapFactory.decodeStream(it)
-                    }
-                } else {
-                    BitmapFactory.decodeFile(url)
-                }
-            }
-        }.onSuccess {
-            bitmap = it
-        }
-    }
-    bitmap?.let {
-        Image(
-            bitmap = it.asImageBitmap(),
-            contentDescription = contentDescription,
-            modifier = modifier
-        )
-    }
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(url)
+            .crossfade(true)
+            .build(),
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Crop
+    )
 }
 
 // ── SVG Fire Icon ─────────────────────────────────────────────────────────
@@ -858,7 +840,7 @@ private val FireIcon: ImageVector by lazy {
             close()
         }
         path(
-            fill = androidx.compose.ui.graphics.SolidColor(Color(0xFFFFC107)),
+            fill = androidx.compose.ui.graphics.SolidColor(Color(0xFFFF6B35)),
             fillAlpha = 1f,
             pathFillType = PathFillType.NonZero
         ) {

@@ -205,7 +205,7 @@ fun GrammarDetailScreen(
                         ) {
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = SecondaryContainerLight.copy(alpha = 0.3f)
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             ) {

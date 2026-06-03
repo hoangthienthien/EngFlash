@@ -131,6 +131,7 @@ private fun QuizContent(
     }
 
     val context = androidx.compose.ui.platform.LocalContext.current
+    val application = context.applicationContext as com.example.engflash.EngFlashApplication
 
     LaunchedEffect(showResults) {
         if (showResults) {
@@ -138,7 +139,11 @@ private fun QuizContent(
             prefs.edit()
                 .putInt("grammar_score_${rule.id}", score)
                 .putInt("grammar_total_${rule.id}", questions.size)
+                // Tăng counter quizzes_completed cho Achievement system
+                .putInt("quizzes_completed", prefs.getInt("quizzes_completed", 0) + 1)
                 .apply()
+            // Ghi nhận ngày học vào streak
+            application.streakManager.recordStudyDay()
         }
     }
 

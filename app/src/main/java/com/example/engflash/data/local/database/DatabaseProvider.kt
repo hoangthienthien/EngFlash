@@ -3,6 +3,7 @@ package com.example.engflash.data.local.database
 import android.content.Context
 import androidx.room.Room
 
+
 object DatabaseProvider {
 
     @Volatile
@@ -15,7 +16,7 @@ object DatabaseProvider {
                 AppDatabase::class.java,
                 "engflash_database"
             )
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(false)
             .build()
             INSTANCE = instance
             instance

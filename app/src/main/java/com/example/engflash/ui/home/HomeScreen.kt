@@ -26,19 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.engflash.ui.navigation.Routes
-import kotlinx.coroutines.flow.first
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.engflash.domain.model.*
 
-// ─── Colors ────────────────────────────────────────────
-private val PageBg = Color(0xFFF9F9FB)
-private val PurplePrimary = Color(0xFF5E3CB3)
-private val PurpleLight = Color(0xFFF0EDF7)
-private val PurpleDark = Color(0xFF3D1F8E)
-private val TextPrimary = Color(0xFF1A1035)
-private val TextSecondary = Color(0xFF7D7799)
-private val CardBg = Color.White
-private val StreakBg = Color(0xFFF5F0FF)
+// Custom colors (không phụ thuộc theme)
 private val GreenSuccess = Color(0xFF22C55E)
 private val OrangeWarm = Color(0xFFF59E0B)
+private val PurpleDarkStatic = Color(0xFF3D1F8E) // Dùng cho card đặc biệt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +51,16 @@ fun HomeScreen(
     val favoriteCount by viewModel.favoriteCount.collectAsState()
     val vocabTopics by viewModel.vocabTopics.collectAsState()
     val recentlyAdded by viewModel.recentlyAdded.collectAsState()
+
+    // ─── Theme Colors ───
+    val PageBg = MaterialTheme.colorScheme.background
+    val PurplePrimary = MaterialTheme.colorScheme.primary
+    val PurpleLight = MaterialTheme.colorScheme.primaryContainer
+    val PurpleDark = MaterialTheme.colorScheme.primary // Dùng primary thay cho PurpleDark để tự động thích ứng
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+    val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val CardBg = MaterialTheme.colorScheme.surface
+    val StreakBg = MaterialTheme.colorScheme.surfaceVariant
 
     val greetingText = remember {
         val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
@@ -139,20 +143,30 @@ fun HomeScreen(
                         color = TextPrimary
                     )
                 }
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(PurplePrimary)
-                        .clickable { navController.navigate(Routes.PROFILE) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        displayName.first().uppercase(),
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IconButton(onClick = { navController.navigate(Routes.SEARCH) }) {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = "Tìm kiếm",
+                            tint = TextPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(PurplePrimary)
+                            .clickable { navController.navigate(Routes.PROFILE) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            displayName.first().uppercase(),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
 
@@ -206,31 +220,38 @@ fun HomeScreen(
                     }
                     Spacer(Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
+                        val streak by viewModel.currentStreak.collectAsStateWithLifecycle()
                         Text(
-                            "Chuỗi học 12 ngày",
+                            "Chuỗi học $streak ngày",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             color = TextPrimary
                         )
                         Text(
-                            "Bạn thuộc top 5% người học chăm chỉ nhất tuần!",
+                            when {
+                                streak >= 7 -> "Tuyệt vời! Bạn đã duy trì chuỗi học cả tuần!"
+                                streak >= 3 -> "Đang tiến bộ tốt, hãy tiếp tục nhé!"
+                                else -> "Hãy duy trì chuỗi học mỗi ngày nhé!"
+                            },
                             color = TextSecondary,
                             fontSize = 13.sp
                         )
                     }
                     Spacer(Modifier.width(12.dp))
                     // Circular progress
+                    val primaryLightColor = PurpleLight
+                    val primaryColor = PurplePrimary
                     Box(contentAlignment = Alignment.Center) {
                         Canvas(modifier = Modifier.size(56.dp)) {
                             drawArc(
-                                color = PurpleLight,
+                                color = primaryLightColor,
                                 startAngle = -90f,
                                 sweepAngle = 360f,
                                 useCenter = false,
                                 style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
                             )
                             drawArc(
-                                color = PurplePrimary,
+                                color = primaryColor,
                                 startAngle = -90f,
                                 sweepAngle = 360f * (masteryPercent.toFloat() / 100f),
                                 useCenter = false,
@@ -505,7 +526,7 @@ fun HomeScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            recentlyAdded.forEach { vocab ->
+            for (vocab in recentlyAdded) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -567,6 +588,12 @@ private fun TopicChipCard(
     wordCount: Int,
     onClick: () -> Unit
 ) {
+    val CardBg = MaterialTheme.colorScheme.surface
+    val PurplePrimary = MaterialTheme.colorScheme.primary
+    val PurpleLight = MaterialTheme.colorScheme.primaryContainer
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+    val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+
     Card(
         modifier = Modifier
             .width(110.dp)

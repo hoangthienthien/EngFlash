@@ -36,6 +36,24 @@ class VocabularyRepositoryImpl(
         vocabularyDao.insert(vocabulary.toEntity())
     }
 
+    override suspend fun deleteVocabulary(id: Int) {
+        vocabularyDao.deleteById(id)
+    }
+
+    override suspend fun updateVocabulary(vocabulary: Vocabulary) {
+        vocabularyDao.update(vocabulary.toEntity())
+    }
+
+    override suspend fun getVocabularyById(id: Int): Vocabulary? {
+        return vocabularyDao.getById(id)?.toDomain()
+    }
+
+    override fun searchVocabularies(query: String): Flow<List<Vocabulary>> {
+        return vocabularyDao.search(query).map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
     override fun getAllTopics(): Flow<List<String>> {
         return vocabularyDao.getAllTopics()
     }

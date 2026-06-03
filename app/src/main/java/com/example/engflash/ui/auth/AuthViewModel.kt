@@ -37,6 +37,13 @@ sealed class ResetPasswordState {
     data class Error(val message: String) : ResetPasswordState()
 }
 
+sealed class ChangePasswordState {
+    object Idle : ChangePasswordState()
+    object Loading : ChangePasswordState()
+    object Success : ChangePasswordState()
+    data class Error(val message: String) : ChangePasswordState()
+}
+
 /**
  * Trạng thái riêng cho chức năng gửi và xác thực OTP.
  */
@@ -61,6 +68,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val logoutUseCase: LogoutUseCase = app.logoutUseCase
     private val getCurrentUserUseCase: GetCurrentUserUseCase = app.getCurrentUserUseCase
     private val isLoggedInUseCase: IsLoggedInUseCase = app.isLoggedInUseCase
+    private val changePasswordUseCase: com.example.engflash.domain.usecase.auth.ChangePasswordUseCase = app.changePasswordUseCase
 
     // ─── Login State ─────────────────────────────────────
     private val _loginState = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -73,6 +81,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     // ─── Reset Password State ────────────────────────────
     private val _resetPasswordState = MutableStateFlow<ResetPasswordState>(ResetPasswordState.Idle)
     val resetPasswordState: StateFlow<ResetPasswordState> = _resetPasswordState.asStateFlow()
+
+    // ─── Change Password State ───────────────────────────
+    private val _changePasswordState = MutableStateFlow<ChangePasswordState>(ChangePasswordState.Idle)
+    val changePasswordState: StateFlow<ChangePasswordState> = _changePasswordState.asStateFlow()
 
     // ─── OTP State ───────────────────────────────────────
     private val _otpState = MutableStateFlow<OtpState>(OtpState.Idle)
@@ -120,6 +132,30 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetResetPasswordState() {
         _resetPasswordState.value = ResetPasswordState.Idle
+    }
+
+    fun changePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
+        if (newPassword.length < 6) {
+            _changePasswordState.value = ChangePasswordState.Error("Mật khẩu mới phải có ít nhất 6 ký tự")
+            return
+        }
+        if (newPassword != confirmPassword) {
+            _changePasswordState.value = ChangePasswordState.Error("Mật khẩu xác nhận không khớp")
+            return
+        }
+
+        viewModelScope.launch {
+            _changePasswordState.value = ChangePasswordState.Loading
+            val result = changePasswordUseCase(currentPassword, newPassword)
+            _changePasswordState.value = result.fold(
+                onSuccess = { ChangePasswordState.Success },
+                onFailure = { ChangePasswordState.Error(mapFirebaseError(it)) }
+            )
+        }
+    }
+
+    fun resetChangePasswordState() {
+        _changePasswordState.value = ChangePasswordState.Idle
     }
 
     // ─── OTP Business Logic ────────────────────────────────

@@ -81,4 +81,7 @@ dependencies {
 
     // Gson (parse JSON)
     implementation(libs.gson)
+
+    // Image loading (thay NetworkImage thủ công)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

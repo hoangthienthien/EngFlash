@@ -1,7 +1,10 @@
 package com.example.engflash.ui.profile
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -13,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,21 +37,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.engflash.ui.navigation.Routes
+import com.example.engflash.util.NotificationHelper
 import com.google.firebase.auth.FirebaseAuth
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
-// ─── Theme colors ────────────────────────────────────────────────────
-private val PurplePrimary   = Color(0xFF6C3CE1)
-private val PurpleLight     = Color(0xFF8B5CF6)
-private val PurpleDark      = Color(0xFF3D1A8A)
-private val PageBg          = Color(0xFFF5F4FC)
-private val CardBg          = Color.White
+// ─── Custom Colors (không thay đổi theo theme) ──────────────────────
 private val AccentGreen     = Color(0xFF4CAF50)
 private val AccentYellow    = Color(0xFFFFC107)
 private val AccentOrange    = Color(0xFFFF6B35)
-private val TextPrimary     = Color(0xFF1A1035)
-private val TextSecondary   = Color(0xFF7A7A9A)
-private val DividerColor    = Color(0xFFEEEEF4)
-private val ProgressTrack   = Color(0xFFEAE5FF)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,59 @@ fun ProfileScreen(
     var nameInput by remember { mutableStateOf("") }
     var bioInput  by remember { mutableStateOf("") }
 
-    var pushNotifs     by remember { mutableStateOf(true) }
+    // ─── Theme Colors ───
+    val PurplePrimary   = MaterialTheme.colorScheme.primary
+    val PurpleLight     = MaterialTheme.colorScheme.primaryContainer
+    val PurpleDark      = MaterialTheme.colorScheme.primary
+    val PageBg          = MaterialTheme.colorScheme.background
+    val CardBg          = MaterialTheme.colorScheme.surface
+    val TextPrimary     = MaterialTheme.colorScheme.onBackground
+    val TextSecondary   = MaterialTheme.colorScheme.onSurfaceVariant
+    val DividerColor    = MaterialTheme.colorScheme.outlineVariant
+    val ProgressTrack   = MaterialTheme.colorScheme.surfaceVariant
+
+    val context       = LocalContext.current
+    val prefsReminder = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+    var pushNotifs     by remember { mutableStateOf(prefsReminder.getBoolean("push_notifs_enabled", true)) }
+    var hasChanges     by remember { mutableStateOf(false) }
+
+    // Reminder time — đọc từ SharedPreferences
+    var reminderHour   by remember { mutableIntStateOf(prefsReminder.getInt("reminder_hour", 9)) }
+    var reminderMinute by remember { mutableIntStateOf(prefsReminder.getInt("reminder_minute", 0)) }
+    var showTimePicker  by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            pushNotifs = true
+            prefsReminder.edit().putBoolean("push_notifs_enabled", true).apply()
+            NotificationHelper.scheduleDailyReminder(context, reminderHour, reminderMinute)
+        } else {
+            pushNotifs = false
+            prefsReminder.edit().putBoolean("push_notifs_enabled", false).apply()
+        }
+    }
+
+    // TimePickerDialog (side-effect — không phải Composable)
+    if (showTimePicker) {
+        android.app.TimePickerDialog(
+            context,
+            { _, hour, minute ->
+                reminderHour = hour
+                reminderMinute = minute
+                prefsReminder.edit()
+                    .putInt("reminder_hour", hour)
+                    .putInt("reminder_minute", minute)
+                    .apply()
+                if (pushNotifs) {
+                    NotificationHelper.scheduleDailyReminder(context, hour, minute)
+                }
+            },
+            reminderHour, reminderMinute, false
+        ).show()
+        showTimePicker = false
+    }
 
     LaunchedEffect(uiState.profile) {
         uiState.profile?.let {
@@ -78,13 +131,8 @@ fun ProfileScreen(
         label = "xpAnim"
     )
 
-
-
-    val achievements = listOf(
-        Triple("Huyền thoại\nTừ vựng",  AccentYellow,  AchieveTrophyIcon),
-        Triple("Đọc nhanh\nSiêu tốc",  PurpleLight,   AchieveLightningIcon),
-        Triple("Chuyên gia\nNgữ pháp",   AccentGreen,   AchieveStarIcon)
-    )
+    val currentStreak by viewModel.streakManager.currentStreak.collectAsStateWithLifecycle()
+    val achievements = remember(uiState, currentStreak) { viewModel.getAchievements(currentStreak) }
 
     Scaffold(
         containerColor = PageBg,
@@ -331,11 +379,79 @@ fun ProfileScreen(
                                 Spacer(Modifier.height(8.dp))
                                 Text("${uiState.totalCount}", color = TextPrimary, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.TrendingUp, null, tint = AccentGreen, modifier = Modifier.size(14.dp))
+                                    Icon(Icons.AutoMirrored.Filled.TrendingUp, null, tint = AccentGreen, modifier = Modifier.size(14.dp))
                                     Spacer(Modifier.width(2.dp))
                                     val pct = if (uiState.totalCount > 0) (uiState.learnedCount * 100 / uiState.totalCount) else 0
                                     Text("Hoàn thành: $pct%", color = TextSecondary, fontSize = 11.sp)
                                 }
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // ── Edit Profile Section ────────────────────────────
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBg),
+                        shape = RoundedCornerShape(24.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp)) {
+                            Text("Chỉnh sửa hồ sơ", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(12.dp))
+
+                            OutlinedTextField(
+                                value = nameInput,
+                                onValueChange = {
+                                    nameInput = it
+                                    hasChanges = true
+                                },
+                                label = { Text("Tên hiển thị") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = bioInput,
+                                onValueChange = {
+                                    bioInput = it
+                                    hasChanges = true
+                                },
+                                label = { Text("Tiểu sử") },
+                                maxLines = 3,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            Spacer(Modifier.height(12.dp))
+
+                            // Nút Lưu — chỉ hiện khi có thay đổi
+                            AnimatedVisibility(visible = hasChanges) {
+                                Button(
+                                    onClick = {
+                                        viewModel.updateName(nameInput)
+                                        viewModel.updateBio(bioInput)
+                                        viewModel.saveProfile()
+                                        hasChanges = false
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)
+                                ) {
+                                    if (uiState.isSaving) {
+                                        CircularProgressIndicator(modifier = Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp)
+                                    } else {
+                                        Text("Lưu thay đổi", color = Color.White, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+
+                            // Success message
+                            if (uiState.saveSuccess) {
+                                Spacer(Modifier.height(8.dp))
+                                Text("✅ Đã lưu thành công!", color = AccentGreen, fontSize = 13.sp)
                             }
                         }
                     }
@@ -351,18 +467,27 @@ fun ProfileScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Thành tựu đạt được", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        Text("Xem tất cả", color = PurpleLight, fontSize = 13.sp)
+                        Text(
+                            "Xem tất cả",
+                            color = PurpleLight,
+                            fontSize = 13.sp,
+                            modifier = Modifier.clickable {
+                                navController.navigate("achievements")
+                            }
+                        )
                     }
                     Spacer(Modifier.height(10.dp))
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(achievements) { (label, tint, icon) ->
+                        items(achievements) { achievement ->
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = CardBg),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (achievement.isUnlocked) CardBg else CardBg.copy(alpha = 0.6f)
+                                ),
                                 shape = RoundedCornerShape(16.dp),
-                                modifier = Modifier.width(90.dp)
+                                modifier = Modifier.width(100.dp)
                             ) {
                                 Column(
                                     modifier = Modifier.padding(12.dp),
@@ -372,15 +497,36 @@ fun ProfileScreen(
                                         modifier = Modifier
                                             .size(44.dp)
                                             .clip(CircleShape)
-                                            .background(tint.copy(alpha = 0.15f)),
+                                            .background(
+                                                if (achievement.isUnlocked)
+                                                    achievement.tint.copy(alpha = 0.15f)
+                                                else
+                                                    Color.Gray.copy(alpha = 0.1f)
+                                            ),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Icon(icon, null, tint = tint, modifier = Modifier.size(24.dp))
+                                        Icon(
+                                            achievement.icon, null,
+                                            tint = if (achievement.isUnlocked) achievement.tint else Color.Gray,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                    if (!achievement.isUnlocked) {
+                                        Spacer(Modifier.height(4.dp))
+                                        LinearProgressIndicator(
+                                            progress = { achievement.progress },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(3.dp)
+                                                .clip(CircleShape),
+                                            color = achievement.tint,
+                                            trackColor = Color.Gray.copy(0.15f)
+                                        )
                                     }
                                     Spacer(Modifier.height(8.dp))
                                     Text(
-                                        label,
-                                        color = TextPrimary,
+                                        achievement.label,
+                                        color = if (achievement.isUnlocked) TextPrimary else TextSecondary,
                                         fontSize = 10.sp,
                                         textAlign = TextAlign.Center,
                                         lineHeight = 14.sp
@@ -403,8 +549,34 @@ fun ProfileScreen(
                         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("Cài đặt nhanh", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(8.dp))
+                            val themeMode by viewModel.themeManager.themeMode.collectAsStateWithLifecycle()
+                            val isDarkMode = themeMode == true
 
+                            // Theme Mode Selection
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.DarkMode, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Text("Chế độ tối (Dark Mode)", color = TextPrimary, fontSize = 14.sp)
+                                }
+                                Switch(
+                                    checked = isDarkMode,
+                                    onCheckedChange = { checked ->
+                                        viewModel.themeManager.setThemeMode(checked)
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = PurplePrimary,
+                                        uncheckedTrackColor = Color.Gray.copy(alpha = 0.3f)
+                                    )
+                                )
+                            }
 
+                            HorizontalDivider(color = DividerColor)
 
                             // Push Notifications
                             Row(
@@ -419,7 +591,49 @@ fun ProfileScreen(
                                 }
                                 Switch(
                                     checked = pushNotifs,
-                                    onCheckedChange = { pushNotifs = it },
+                                    onCheckedChange = { checked -> 
+                                        if (checked) {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                            } else {
+                                                pushNotifs = true
+                                                prefsReminder.edit().putBoolean("push_notifs_enabled", true).apply()
+                                                NotificationHelper.scheduleDailyReminder(context, reminderHour, reminderMinute)
+                                            }
+                                        } else {
+                                            pushNotifs = false
+                                            prefsReminder.edit().putBoolean("push_notifs_enabled", false).apply()
+                                            NotificationHelper.cancelDailyReminder(context)
+                                        }
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = PurplePrimary,
+                                        uncheckedTrackColor = Color.White.copy(0.2f)
+                                    )
+                                )
+                            }
+                            
+                            HorizontalDivider(color = DividerColor)
+                            
+                            // Sound Settings
+                            var soundEnabled by remember { mutableStateOf(viewModel.soundManager.isSoundEnabled) }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.AutoMirrored.Filled.VolumeUp, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Text("Âm thanh hiệu ứng", color = TextPrimary, fontSize = 14.sp)
+                                }
+                                Switch(
+                                    checked = soundEnabled,
+                                    onCheckedChange = { 
+                                        soundEnabled = it
+                                        viewModel.soundManager.isSoundEnabled = it
+                                    },
                                     colors = SwitchDefaults.colors(
                                         checkedThumbColor = Color.White,
                                         checkedTrackColor = PurplePrimary,
@@ -432,7 +646,9 @@ fun ProfileScreen(
 
                             // Daily Reminder
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { showTimePicker = true },
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -442,10 +658,34 @@ fun ProfileScreen(
                                     Text("Hẹn giờ hàng ngày", color = TextPrimary, fontSize = 14.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("09:00 AM", color = PurpleLight, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    val ampm = if (reminderHour < 12) "AM" else "PM"
+                                    val h12  = reminderHour % 12
+                                    val displayH = if (h12 == 0) 12 else h12
+                                    Text(
+                                        String.format("%02d:%02d %s", displayH, reminderMinute, ampm),
+                                        color = PurpleLight, fontSize = 13.sp, fontWeight = FontWeight.SemiBold
+                                    )
                                     Spacer(Modifier.width(4.dp))
                                     Icon(Icons.Default.Schedule, null, tint = PurpleLight, modifier = Modifier.size(14.dp))
                                 }
+                            }
+                            
+                            HorizontalDivider(color = DividerColor)
+                            
+                            // Change Password
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { navController.navigate(Routes.CHANGE_PASSWORD) },
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Lock, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Text("Đổi mật khẩu", color = TextPrimary, fontSize = 14.sp)
+                                }
+                                Icon(Icons.Default.ChevronRight, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
                             }
                         }
                     }

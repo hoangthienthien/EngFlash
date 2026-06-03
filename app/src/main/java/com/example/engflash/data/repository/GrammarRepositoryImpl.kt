@@ -22,4 +22,10 @@ class GrammarRepositoryImpl(
             entity?.toDomain()
         }
     }
+
+    override fun searchGrammar(query: String): Flow<List<GrammarRule>> {
+        return grammarDao.search(query).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
 }

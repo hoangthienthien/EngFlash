@@ -40,12 +40,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.Locale
 
-private val PageBg = Color(0xFFFBFBFE)
-private val CardBg = Color(0xFFFFFFFF)
-private val TextPrimary = Color(0xFF1E1640)
-private val TextSecondary = Color(0xFF7D7799)
-private val PurplePrimary = Color(0xFF5E3CB3)
-private val PurpleLight = Color(0xFFEAE5FF)
+// Màu sắc sẽ được lấy từ MaterialTheme.colorScheme bên trong mỗi Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +51,14 @@ fun VocabularyListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    // ─── Theme Colors ───
+    val PageBg = MaterialTheme.colorScheme.background
+    val CardBg = MaterialTheme.colorScheme.surface
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+    val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val PurplePrimary = MaterialTheme.colorScheme.primary
+    val PurpleLight = MaterialTheme.colorScheme.primaryContainer
 
     // Initialize TTS engine
     var tts by remember { mutableStateOf<TextToSpeech?>(null) }
@@ -120,7 +123,7 @@ fun VocabularyListScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp
             ) {
                 NavigationBarItem(
@@ -178,7 +181,7 @@ fun VocabularyListScreen(
             FloatingActionButton(
                 onClick = { navController.navigate(Routes.ADD_WORD) },
                 containerColor = PurplePrimary,
-                contentColor = Color.White,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape,
                 modifier = Modifier.padding(bottom = 16.dp, end = 8.dp)
             ) {
@@ -197,6 +200,29 @@ fun VocabularyListScreen(
                 CircularProgressIndicator(color = PurplePrimary)
             }
         } else {
+            var showDeleteDialog by remember { mutableStateOf<Vocabulary?>(null) }
+
+            // Delete Confirmation Dialog — hoisted outside LazyColumn
+            if (showDeleteDialog != null) {
+                val vocabToDelete = showDeleteDialog!!
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = null },
+                    title = { Text("Xoá từ vựng") },
+                    text = { Text("Bạn có chắc chắn muốn xoá từ '${vocabToDelete.word}' khỏi bộ từ vựng không?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.deleteVocabulary(vocabToDelete.id)
+                                showDeleteDialog = null
+                            }
+                        ) { Text("Xoá", color = Color.Red) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDialog = null }) { Text("Huỷ") }
+                    }
+                )
+            }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -244,6 +270,12 @@ fun VocabularyListScreen(
                         },
                         onToggleFavorite = {
                             viewModel.toggleVocabularyFavorite(vocab.id, !vocab.isFavorite)
+                        },
+                        onEdit = {
+                            navController.navigate(Routes.editWord(vocab.id))
+                        },
+                        onDelete = {
+                            showDeleteDialog = vocab
                         }
                     )
                 }
@@ -256,8 +288,18 @@ fun VocabularyListScreen(
 fun VocabularyWordCard(
     vocab: Vocabulary,
     onPlayAudio: () -> Unit,
-    onToggleFavorite: () -> Unit
+    onToggleFavorite: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
+    // ─── Theme Colors ───
+    val PageBg = MaterialTheme.colorScheme.background
+    val CardBg = MaterialTheme.colorScheme.surface
+    val TextPrimary = MaterialTheme.colorScheme.onBackground
+    val TextSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val PurplePrimary = MaterialTheme.colorScheme.primary
+    val PurpleLight = MaterialTheme.colorScheme.primaryContainer
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -283,27 +325,38 @@ fun VocabularyWordCard(
                     color = TextPrimary
                 )
 
-                // Part of Speech capsule tag
-                val displayPos = when (vocab.partOfSpeech.uppercase()) {
-                    "NOUN" -> "Danh từ"
-                    "VERB" -> "Động từ"
-                    "ADJECTIVE" -> "Tính từ"
-                    "ADVERB" -> "Trạng từ"
-                    else -> vocab.partOfSpeech
-                }
+                // Part of Speech capsule tag and Actions
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val displayPos = when (vocab.partOfSpeech.uppercase()) {
+                        "NOUN" -> "Danh từ"
+                        "VERB" -> "Động từ"
+                        "ADJECTIVE" -> "Tính từ"
+                        "ADVERB" -> "Trạng từ"
+                        else -> vocab.partOfSpeech
+                    }
 
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(PurpleLight)
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = displayPos,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PurplePrimary
-                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(PurpleLight)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = displayPos,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = PurplePrimary
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(8.dp))
+                    
+                    IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Edit, contentDescription = "Sửa", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                    }
+                    IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Delete, contentDescription = "Xoá", tint = Color.Red.copy(alpha = 0.7f), modifier = Modifier.size(18.dp))
+                    }
                 }
             }
 
@@ -357,8 +410,8 @@ fun VocabularyWordCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isAdded) Color(0xFFF0EDF7) else PurplePrimary,
-                    contentColor = if (isAdded) PurplePrimary else Color.White
+                    containerColor = if (isAdded) MaterialTheme.colorScheme.primaryContainer else PurplePrimary,
+                    contentColor = if (isAdded) PurplePrimary else MaterialTheme.colorScheme.onPrimary
                 ),
                 contentPadding = PaddingValues(vertical = 12.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)

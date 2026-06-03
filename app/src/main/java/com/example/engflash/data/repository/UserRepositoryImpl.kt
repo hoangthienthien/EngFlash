@@ -14,56 +14,70 @@ class UserRepositoryImpl(
 ) : UserRepository {
 
     override suspend fun getUserProfile(uid: String): UserProfile? {
-        // Read from Room (offline-first)
         val localEntity = userProfileDao.getByUid(uid)
-        if (localEntity != null) {
-            return localEntity.toDomain()
-        }
 
-        // Pull from Firestore if not found in Room
-        return try {
+        // Thử fetch remote (bất đồng bộ, bỏ qua nếu offline)
+        val remoteProfile: UserProfile? = try {
             val doc = firestore.collection("users").document(uid).get().await()
             if (doc.exists()) {
-                val displayName = doc.getString("displayName") ?: ""
-                val email = doc.getString("email") ?: ""
-                val avatarUrl = doc.getString("avatarUrl") ?: ""
-                val bio = doc.getString("bio") ?: ""
-                
-                val profile = UserProfile(
-                    uid = uid,
-                    displayName = displayName,
-                    email = email,
-                    avatarUrl = avatarUrl,
-                    bio = bio
+                UserProfile(
+                    uid         = uid,
+                    displayName = doc.getString("displayName") ?: "",
+                    email       = doc.getString("email") ?: "",
+                    avatarUrl   = doc.getString("avatarUrl") ?: "",
+                    bio         = doc.getString("bio") ?: "",
+                    updatedAt   = doc.getLong("updatedAt") ?: 0L
                 )
-                // Cache to Room
-                userProfileDao.upsert(profile.toEntity())
-                profile
-            } else {
-                null
-            }
+            } else null
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            null  // Offline → bỏ qua lỗi mạng
+        }
+
+        return when {
+            // Không có gì cả
+            localEntity == null && remoteProfile == null -> null
+
+            // Chỉ có remote → cache local và trả về
+            localEntity == null -> {
+                userProfileDao.upsert(remoteProfile!!.toEntity())
+                remoteProfile
+            }
+
+            // Offline → dùng local
+            remoteProfile == null -> localEntity.toDomain()
+
+            // Remote mới hơn → cập nhật local, trả về remote
+            remoteProfile.updatedAt > localEntity.updatedAt -> {
+                userProfileDao.upsert(remoteProfile.toEntity())
+                remoteProfile
+            }
+
+            // Local mới hơn hoặc bằng → dùng local
+            else -> localEntity.toDomain()
         }
     }
 
     override suspend fun updateUserProfile(profile: UserProfile) {
-        // Save to Room first
-        userProfileDao.upsert(profile.toEntity())
+        // Gắn timestamp hiện tại khi user lưu
+        val updated = profile.copy(updatedAt = System.currentTimeMillis())
 
-        // Push to Firestore
+        // Lưu local trước
+        userProfileDao.upsert(updated.toEntity())
+
+        // Push lên Firestore (bỏ qua nếu offline)
         val userMap = hashMapOf(
-            "uid" to profile.uid,
-            "displayName" to profile.displayName,
-            "email" to profile.email,
-            "avatarUrl" to profile.avatarUrl,
-            "bio" to profile.bio
+            "uid"         to updated.uid,
+            "displayName" to updated.displayName,
+            "email"       to updated.email,
+            "avatarUrl"   to updated.avatarUrl,
+            "bio"         to updated.bio,
+            "updatedAt"   to updated.updatedAt   // timestamp để conflict-resolve sau
         )
         try {
-            firestore.collection("users").document(profile.uid).set(userMap).await()
+            firestore.collection("users").document(updated.uid).set(userMap).await()
         } catch (e: Exception) {
             e.printStackTrace()
+            // Offline → local đã lưu, Firestore sẽ sync tự động khi có mạng
         }
     }
 }

@@ -9,5 +9,6 @@ data class UserProfileEntity(
     val displayName: String,
     val email: String,
     val avatarUrl: String,
-    val bio: String
+    val bio: String,
+    val updatedAt: Long = 0L
 )

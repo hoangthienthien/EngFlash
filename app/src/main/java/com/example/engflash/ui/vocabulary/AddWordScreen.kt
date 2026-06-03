@@ -41,13 +41,13 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
-private val PageBg = Color(0xFFF9F9FB)
-private val CardBg = Color(0xFFFFFFFF)
-private val TextPrimary = Color(0xFF1A1035)
-private val TextSecondary = Color(0xFF7D7799)
-private val PurplePrimary = Color(0xFF5E3CB3)
-private val PurpleLight = Color(0xFFF0EDF7)
-private val BorderColor = Color(0xFFEAEAEF)
+private val PageBg @Composable get() = MaterialTheme.colorScheme.background
+private val CardBg @Composable get() = MaterialTheme.colorScheme.surface
+private val TextPrimary @Composable get() = MaterialTheme.colorScheme.onBackground
+private val TextSecondary @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+private val PurplePrimary @Composable get() = MaterialTheme.colorScheme.primary
+private val PurpleLight @Composable get() = MaterialTheme.colorScheme.primaryContainer
+private val BorderColor @Composable get() = MaterialTheme.colorScheme.outlineVariant
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -204,7 +204,7 @@ fun AddWordScreen(
                         Icon(
                             Icons.Default.Person,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -258,7 +258,7 @@ fun AddWordScreen(
                 )
                 Text(
                     text = "Lưu giữ từ vựng để ôn tập mỗi ngày.",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
@@ -279,7 +279,7 @@ fun AddWordScreen(
                     Icon(
                         Icons.Default.CameraAlt,
                         contentDescription = "Chọn ảnh",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -298,7 +298,7 @@ fun AddWordScreen(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = "Xóa ảnh",
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -344,7 +344,7 @@ fun AddWordScreen(
                         modifier = Modifier.height(56.dp)
                     ) {
                         if (isFetchingPhonetic) {
-                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp))
                         } else {
                             Text("Lấy IPA", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
@@ -477,7 +477,7 @@ fun AddWordScreen(
                 enabled = word.isNotBlank() && definition.isNotBlank() && selectedSubject.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = PurplePrimary,
-                    contentColor = Color.White
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth(),
@@ -596,6 +596,7 @@ private fun SubjectChip(
 // ─── Dotted circle add button ──────────────────────────
 @Composable
 private fun DottedAddButton(onClick: () -> Unit) {
+    val primaryColor = PurplePrimary
     Box(
         modifier = Modifier
             .size(40.dp)
@@ -605,7 +606,7 @@ private fun DottedAddButton(onClick: () -> Unit) {
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
                 )
                 drawCircle(
-                    color = PurplePrimary,
+                    color = primaryColor,
                     radius = size.minDimension / 2,
                     style = stroke
                 )
