@@ -51,6 +51,7 @@ fun HomeScreen(
     val favoriteCount by viewModel.favoriteCount.collectAsState()
     val vocabTopics by viewModel.vocabTopics.collectAsState()
     val recentlyAdded by viewModel.recentlyAdded.collectAsState()
+    val stats by viewModel.vocabStats.collectAsState()
 
     // ─── Theme Colors ───
     val PageBg = MaterialTheme.colorScheme.background
@@ -71,7 +72,7 @@ fun HomeScreen(
         }
     }
 
-    val masteryPercent = if (totalWords > 0) (learnedWords * 100 / totalWords) else 0
+    val masteryPercent = if (stats.totalCount > 0) (stats.masteredCount * 100 / stats.totalCount) else 0
 
     Scaffold(
         bottomBar = {
@@ -459,7 +460,7 @@ fun HomeScreen(
                             )
                         }
                         Column(horizontalAlignment = Alignment.End) {
-                            Text("$totalWords", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 28.sp)
+                            Text("${stats.totalCount}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 28.sp)
                             Text("TỔNG SỐ", color = Color.White.copy(alpha = 0.6f), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             Spacer(Modifier.height(4.dp))
                             Text("TỪ VỰNG", color = Color.White.copy(alpha = 0.6f), fontSize = 11.sp, fontWeight = FontWeight.Bold)
@@ -475,11 +476,11 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Từ đã thuộc (Giỏi)", color = Color.White, fontSize = 13.sp)
-                        Text("$learnedWords / $totalWords", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                        Text("${stats.masteredCount} / ${stats.totalCount}", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
                     }
                     Spacer(Modifier.height(8.dp))
                     LinearProgressIndicator(
-                        progress = { if (totalWords > 0) learnedWords.toFloat() / totalWords else 0f },
+                        progress = { if (stats.totalCount > 0) stats.masteredCount.toFloat() / stats.totalCount else 0f },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp)
@@ -495,11 +496,9 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        val familiarCount = totalWords - learnedWords
-                        val retention = if (totalWords > 0) (learnedWords * 100 / totalWords) else 0
-                        MasteryStatItem(value = "$learnedWords", label = "Đang ôn tập")
-                        MasteryStatItem(value = "$familiarCount", label = "Chưa thuộc")
-                        MasteryStatItem(value = "$retention%", label = "Ghi nhớ")
+                        MasteryStatItem(value = "${stats.reviewingCount}", label = "Đang ôn tập")
+                        MasteryStatItem(value = "${stats.unlearnedCount}", label = "Chưa thuộc")
+                        MasteryStatItem(value = "${stats.retentionRate}%", label = "Ghi nhớ")
                     }
                 }
             }

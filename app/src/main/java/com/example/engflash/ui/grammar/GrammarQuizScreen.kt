@@ -141,7 +141,7 @@ private fun QuizContent(
                 .putInt("grammar_total_${rule.id}", questions.size)
                 // Tăng counter quizzes_completed cho Achievement system
                 .putInt("quizzes_completed", prefs.getInt("quizzes_completed", 0) + 1)
-                .apply()
+                .commit()
             // Ghi nhận ngày học vào streak
             application.streakManager.recordStudyDay()
         }

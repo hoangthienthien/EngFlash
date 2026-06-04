@@ -41,7 +41,6 @@ fun VocabularyLibraryScreen(
     viewModel: FlashcardViewModel
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedTab by remember { mutableStateOf("All Subjects") }
 
     // ─── Theme Colors ───
     val PageBg = MaterialTheme.colorScheme.background
@@ -177,40 +176,6 @@ fun VocabularyLibraryScreen(
                     ),
                     singleLine = true
                 )
-            }
-
-            // Filter Chips Row
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    val tabs = listOf("Tất cả", "Gần đây", "Yêu thích")
-                    tabs.forEach { tabName ->
-                        val isSelected = (selectedTab == "All Subjects" && tabName == "Tất cả") ||
-                                         (selectedTab == "Recent" && tabName == "Gần đây") ||
-                                         (selectedTab == "Starred" && tabName == "Yêu thích")
-                        Button(
-                            onClick = {
-                                selectedTab = when(tabName) {
-                                    "Tất cả" -> "All Subjects"
-                                    "Gần đây" -> "Recent"
-                                    "Yêu thích" -> "Starred"
-                                    else -> tabName
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isSelected) PurplePrimary else MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
-                            ),
-                            shape = RoundedCornerShape(50),
-                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
-                        ) {
-                            Text(tabName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        }
-                    }
-                }
             }
 
             // Subject Cards List

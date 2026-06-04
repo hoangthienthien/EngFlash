@@ -41,12 +41,18 @@ class MainActivity : ComponentActivity() {
                     val prefs = getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
                     val hasSeenOnboarding = prefs.getBoolean("has_seen_onboarding", false)
 
+                    val currentUser = FirebaseAuth.getInstance().currentUser
                     val startDestination = if (!hasSeenOnboarding) {
                         Routes.ONBOARDING
-                    } else if (FirebaseAuth.getInstance().currentUser != null) {
+                    } else if (currentUser != null) {
                         Routes.HOME
                     } else {
                         Routes.LOGIN
+                    }
+
+                    // Trigger background cloud sync on app start if user is logged in
+                    if (currentUser != null) {
+                        com.example.engflash.util.CloudSyncManager.syncAllProgress(this@MainActivity, currentUser.uid)
                     }
 
                     NavGraph(

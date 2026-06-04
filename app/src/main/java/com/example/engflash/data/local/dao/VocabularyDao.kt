@@ -22,6 +22,9 @@ interface VocabularyDao {
     @Query("SELECT * FROM vocabularies ORDER BY id ASC")
     fun getAll(): Flow<List<VocabularyEntity>>
 
+    @Query("SELECT * FROM vocabularies ORDER BY id ASC")
+    suspend fun getAllList(): List<VocabularyEntity>
+
     @Query("SELECT * FROM vocabularies WHERE isFavorite = 1 ORDER BY id ASC")
     fun getFavorites(): Flow<List<VocabularyEntity>>
 
@@ -44,7 +47,7 @@ interface VocabularyDao {
     fun getRecentlyAdded(): Flow<List<VocabularyEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(vocabulary: VocabularyEntity)
+    suspend fun insert(vocabulary: VocabularyEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(list: List<VocabularyEntity>)
@@ -58,6 +61,26 @@ interface VocabularyDao {
     @Query("SELECT * FROM vocabularies WHERE id = :id")
     suspend fun getById(id: Int): VocabularyEntity?
 
+    @Query("SELECT * FROM vocabularies WHERE word = :word LIMIT 1")
+    suspend fun getByWord(word: String): VocabularyEntity?
+
+    @Query("SELECT * FROM vocabularies WHERE LOWER(word) = LOWER(:word) LIMIT 1")
+    suspend fun getByWordIgnoreCase(word: String): VocabularyEntity?
+
     @Query("SELECT * FROM vocabularies WHERE word LIKE '%' || :query || '%' OR meaning LIKE '%' || :query || '%' ORDER BY word ASC")
     fun search(query: String): Flow<List<VocabularyEntity>>
+
+    // ─── Flashcard (isFavorite) queries for Practice screen ───
+
+    @Query("SELECT * FROM vocabularies WHERE isFavorite = 1 AND topic = :topic ORDER BY id ASC")
+    fun getFlashcardByTopic(topic: String): Flow<List<VocabularyEntity>>
+
+    @Query("SELECT DISTINCT topic FROM vocabularies WHERE isFavorite = 1")
+    fun getFlashcardTopics(): Flow<List<String>>
+
+    @Query("SELECT COUNT(*) FROM vocabularies WHERE isFavorite = 1 AND topic = :topic")
+    fun getFlashcardCountByTopic(topic: String): Flow<Int>
+
+    @Query("SELECT * FROM vocabularies WHERE isFavorite = 1 ORDER BY id ASC")
+    fun getAllFlashcards(): Flow<List<VocabularyEntity>>
 }

@@ -21,8 +21,11 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     private val getFavoriteVocabulariesUseCase = app.getFavoriteVocabulariesUseCase
     private val markVocabularyAsLearnedUseCase = app.markVocabularyAsLearnedUseCase
     private val toggleVocabularyFavoriteUseCase = app.toggleVocabularyFavoriteUseCase
+    private val updateVocabularyLearnedStatusUseCase = app.updateVocabularyLearnedStatusUseCase
     private val addVocabularyUseCase = app.addVocabularyUseCase
     private val getUniqueVocabTopicsUseCase = app.getUniqueVocabTopicsUseCase
+    private val getFlashcardByTopicUseCase = app.getFlashcardByTopicUseCase
+    private val getFlashcardTopicsUseCase = app.getFlashcardTopicsUseCase
     private val soundManager = app.soundManager
     val streakManager = app.streakManager
 
@@ -33,18 +36,53 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
             initialValue = emptyList()
         )
 
+    // ─── Flashcard Practice Topics (topics that have isFavorite words) ───
+    val flashcardTopics: StateFlow<List<String>> = getFlashcardTopicsUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     fun getTopicWordCount(topic: String): kotlinx.coroutines.flow.Flow<Int> {
         return app.database.vocabularyDao().getCountByTopic(topic)
     }
 
+    fun getFlashcardCountByTopic(topic: String): kotlinx.coroutines.flow.Flow<Int> {
+        return app.getFlashcardCountByTopicUseCase(topic)
+    }
+
+    fun getTopicFlashcardProgress(topic: String): kotlinx.coroutines.flow.Flow<Pair<Int, Int>> {
+        return getFlashcardByTopicUseCase(topic).map { list ->
+            val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+            val now = System.currentTimeMillis()
+            val mastered = list.count { vocab ->
+                val rating = prefs.getString("rating_${vocab.id}", null)
+                if (rating != null) {
+                    rating.lowercase() == "giỏi"
+                } else {
+                    val nextReview = prefs.getLong("next_review_${vocab.id}", 0L)
+                    // If next review is more than 2 days in the future, it was likely rated "Giỏi"
+                    nextReview - now > 2 * 24 * 60 * 60 * 1000L
+                }
+            }
+            Pair(mastered, list.size)
+        }
+    }
+
     private val _uiState = MutableStateFlow(FlashcardUiState())
     val uiState: StateFlow<FlashcardUiState> = _uiState.asStateFlow()
+
+    // Track which vocab IDs have been reviewed in current session
+    private val _reviewedIds = MutableStateFlow<Set<Int>>(emptySet())
+    val reviewedIds: StateFlow<Set<Int>> = _reviewedIds.asStateFlow()
 
     private var loadJob: kotlinx.coroutines.Job? = null
 
     fun loadTopicOrFilter(filter: String) {
         loadJob?.cancel()
         _uiState.value = _uiState.value.copy(isLoading = true, selectedFilter = filter)
+        _reviewedIds.value = emptySet()
         loadJob = viewModelScope.launch {
             val flow = when (filter) {
                 "All" -> app.database.vocabularyDao().getAll().map { list -> list.map { it.toDomain() } }
@@ -83,6 +121,26 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    /**
+     * Load flashcard words for a specific topic (only isFavorite = true).
+     * Used by the new Practice flow — words persist and are NOT removed after review.
+     */
+    fun loadFlashcardByTopic(topic: String) {
+        loadJob?.cancel()
+        _uiState.value = _uiState.value.copy(isLoading = true, selectedFilter = topic)
+        _reviewedIds.value = emptySet()
+        loadJob = viewModelScope.launch {
+            val flow = getFlashcardByTopicUseCase(topic)
+            flow.collect { list ->
+                _uiState.value = _uiState.value.copy(
+                    vocabularies = list,
+                    isLoading = false,
+                    currentIndex = if (_uiState.value.currentIndex >= list.size) 0 else _uiState.value.currentIndex
+                )
+            }
+        }
+    }
+
     fun nextCard() {
         val list = _uiState.value.vocabularies
         if (list.isEmpty()) return
@@ -113,6 +171,66 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
+    /**
+     * Review card in PRACTICE mode — words stay in the list (persistent).
+     * SRS interval is still recorded. The word is marked as "reviewed" visually.
+     */
+    fun reviewCardPersistent(vocabId: Int, rating: String) {
+        // Ghi nhận ngày học
+        app.streakManager.recordStudyDay()
+
+        val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+        val now = System.currentTimeMillis()
+        val delayMs = when (rating.lowercase()) {
+            "yếu" -> {
+                soundManager.playWrongSound()
+                1000L * 90 // 1.5 minutes
+            }
+            "được" -> {
+                soundManager.playCorrectSound()
+                1000L * 60 * 15 // 15 minutes
+            }
+            "giỏi" -> {
+                soundManager.playCorrectSound()
+                1000L * 60 * 60 * 24 * 4 // 4 days
+            }
+            else -> 0L
+        }
+        val nextReview = now + delayMs
+        prefs.edit()
+            .putLong("next_review_$vocabId", nextReview)
+            .putString("rating_$vocabId", rating.lowercase())
+            .apply()
+
+        // Update database: yếu = false (unlearned/retry), được/giỏi = true (learned)
+        val isLearned = rating.lowercase() == "được" || rating.lowercase() == "giỏi"
+        viewModelScope.launch {
+            updateVocabularyLearnedStatusUseCase(vocabId, isLearned, nextReview, rating.lowercase())
+        }
+
+        // Mark as reviewed (for visual indicator) but DO NOT remove from list
+        _reviewedIds.value = _reviewedIds.value + vocabId
+
+        // Check if all reviewed
+        val allReviewed = _uiState.value.vocabularies.all { it.id in (_reviewedIds.value + vocabId) }
+        if (allReviewed) {
+            soundManager.playCompleteSound()
+        }
+
+        // Move to next card
+        val list = _uiState.value.vocabularies
+        if (list.isNotEmpty()) {
+            val nextIndex = (_uiState.value.currentIndex + 1) % list.size
+            _uiState.value = _uiState.value.copy(
+                currentIndex = nextIndex,
+                isFlipped = false
+            )
+        }
+    }
+
+    /**
+     * Legacy reviewCard — used by the old flow. Removes word from the list after review.
+     */
     fun reviewCard(vocabId: Int, rating: String) {
         // Ghi nhận ngày học
         app.streakManager.recordStudyDay()
@@ -134,12 +252,16 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
             }
             else -> 0L
         }
-        prefs.edit().putLong("next_review_$vocabId", now + delayMs).apply()
+        val nextReview = now + delayMs
+        prefs.edit()
+            .putLong("next_review_$vocabId", nextReview)
+            .putString("rating_$vocabId", rating.lowercase())
+            .apply()
 
         // Update database: yếu = false (unlearned/retry), được/giỏi = true (learned)
         val isLearned = rating.lowercase() == "được" || rating.lowercase() == "giỏi"
         viewModelScope.launch {
-            app.database.vocabularyDao().updateLearnedStatus(vocabId, isLearned)
+            updateVocabularyLearnedStatusUseCase(vocabId, isLearned, nextReview, rating.lowercase())
         }
 
         // To make it feel instantaneous, remove it from the local state list immediately
