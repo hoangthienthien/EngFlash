@@ -15,6 +15,9 @@ import com.example.engflash.domain.repository.TopicRepository
 import com.example.engflash.domain.repository.VocabularyRepository
 import com.example.engflash.domain.repository.UserRepository
 import com.example.engflash.domain.usecase.AddVocabularyUseCase
+import com.example.engflash.domain.usecase.vocabulary.GetAllVocabularyListUseCase
+import com.example.engflash.domain.usecase.vocabulary.AddVocabularyListUseCase
+import com.example.engflash.domain.usecase.vocabulary.DeleteDuplicateVocabulariesUseCase
 import com.example.engflash.domain.usecase.GetUniqueVocabTopicsUseCase
 import com.example.engflash.domain.usecase.GetFavoriteVocabulariesUseCase
 import com.example.engflash.domain.usecase.GetVocabulariesByTopicUseCase
@@ -66,7 +69,7 @@ class EngFlashApplication : Application() {
     }
 
     private val vocabularyRepository: VocabularyRepository by lazy {
-        VocabularyRepositoryImpl(database.vocabularyDao())
+        VocabularyRepositoryImpl(this, database.vocabularyDao())
     }
 
     private val userRepository: UserRepository by lazy {
@@ -153,12 +156,41 @@ class EngFlashApplication : Application() {
         com.example.engflash.domain.usecase.vocabulary.UpdateVocabularyUseCase(vocabularyRepository)
     }
 
+    val updateVocabularyLearnedStatusUseCase: com.example.engflash.domain.usecase.vocabulary.UpdateVocabularyLearnedStatusUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.UpdateVocabularyLearnedStatusUseCase(vocabularyRepository)
+    }
+
     val getVocabularyByIdUseCase: com.example.engflash.domain.usecase.vocabulary.GetVocabularyByIdUseCase by lazy {
         com.example.engflash.domain.usecase.vocabulary.GetVocabularyByIdUseCase(vocabularyRepository)
     }
 
     val searchVocabularyUseCase: com.example.engflash.domain.usecase.vocabulary.SearchVocabularyUseCase by lazy {
         com.example.engflash.domain.usecase.vocabulary.SearchVocabularyUseCase(vocabularyRepository)
+    }
+
+    val getAllVocabularyListUseCase: GetAllVocabularyListUseCase by lazy {
+        GetAllVocabularyListUseCase(vocabularyRepository)
+    }
+
+    val addVocabularyListUseCase: AddVocabularyListUseCase by lazy {
+        AddVocabularyListUseCase(vocabularyRepository)
+    }
+
+    val deleteDuplicateVocabulariesUseCase: DeleteDuplicateVocabulariesUseCase by lazy {
+        DeleteDuplicateVocabulariesUseCase(vocabularyRepository)
+    }
+
+    // ─── Flashcard Practice UseCases ─────────────────────
+    val getFlashcardByTopicUseCase: com.example.engflash.domain.usecase.vocabulary.GetFlashcardByTopicUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.GetFlashcardByTopicUseCase(vocabularyRepository)
+    }
+
+    val getFlashcardTopicsUseCase: com.example.engflash.domain.usecase.vocabulary.GetFlashcardTopicsUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.GetFlashcardTopicsUseCase(vocabularyRepository)
+    }
+
+    val getFlashcardCountByTopicUseCase: com.example.engflash.domain.usecase.vocabulary.GetFlashcardCountByTopicUseCase by lazy {
+        com.example.engflash.domain.usecase.vocabulary.GetFlashcardCountByTopicUseCase(vocabularyRepository)
     }
 
     val searchGrammarUseCase: com.example.engflash.domain.usecase.grammar.SearchGrammarUseCase by lazy {

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * Quản lý streak học tập dựa trên SharedPreferences.
  * Mỗi ngày user hoàn thành flashcard/quiz → gọi recordStudyDay().
  */
-class StreakManager(context: Context) {
+class StreakManager(private val context: Context) {
     private val prefs = context.getSharedPreferences("engflash_streak", Context.MODE_PRIVATE)
     private val fmt = DateTimeFormatter.ISO_LOCAL_DATE
 
@@ -35,14 +35,22 @@ class StreakManager(context: Context) {
             else -> 1  // Bị gián đoạn → reset
         }
 
+        val maxLongest = maxOf(longest, newStreak)
+
         prefs.edit()
             .putString("last_study_date", today)
             .putInt("current_streak", newStreak)
-            .putInt("longest_streak", maxOf(longest, newStreak))
+            .putInt("longest_streak", maxLongest)
             .apply()
 
         _currentStreak.value = newStreak
-        _longestStreak.value = maxOf(longest, newStreak)
+        _longestStreak.value = maxLongest
+
+        // Trigger Cloud Sync if user is logged in
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            CloudSyncManager.pushStats(context, uid)
+        }
     }
 
     /** Streak hiện tại (đã kiểm tra gián đoạn) */
@@ -54,6 +62,12 @@ class StreakManager(context: Context) {
             last == today || last == today.minusDays(1) -> prefs.getInt("current_streak", 0)
             else -> 0  // Đã quá 1 ngày không học → streak = 0
         }
+    }
+
+    /** Refresh flows from updated shared preferences */
+    fun refresh() {
+        _currentStreak.value = calculateCurrentStreak()
+        _longestStreak.value = prefs.getInt("longest_streak", 0)
     }
     
     // For backward compatibility or immediate reads if needed

@@ -6,7 +6,6 @@ package com.example.engflash.ui.navigation
 object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
-    const val FORGOT_PASSWORD = "forgot_password"
     const val HOME = "home"
     const val GRAMMAR_TOPIC_LIST = "grammar_topic_list"
     const val GRAMMAR_LIST = "grammar_list/{topicId}"
@@ -15,6 +14,7 @@ object Routes {
     const val VOCABULARY_PLACEHOLDER = "vocabulary_placeholder"
     const val VOCABULARY_LIST = "vocabulary_list/{topicName}"
     const val FLASHCARD_PLACEHOLDER = "flashcard_placeholder"
+    const val FLASHCARD_PRACTICE = "flashcard_practice/{topicName}"
     const val PROFILE = "profile"
     const val EDIT_WORD = "edit_word/{vocabId}"
     const val ACHIEVEMENTS = "achievements"
@@ -29,4 +29,5 @@ object Routes {
     fun grammarList(topicId: String) = "grammar_list/$topicId"
     fun grammarDetail(grammarId: String) = "grammar_detail/$grammarId"
     fun grammarQuiz(grammarRuleId: String) = "grammar_quiz/$grammarRuleId"
+    fun flashcardPractice(topicName: String) = "flashcard_practice/$topicName"
 }

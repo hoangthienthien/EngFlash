@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.engflash.ui.auth.AuthViewModel
-import com.example.engflash.ui.auth.ForgotPasswordScreen
 import com.example.engflash.ui.auth.LoginScreen
 import com.example.engflash.ui.auth.RegisterScreen
 import com.example.engflash.ui.auth.ChangePasswordScreen
@@ -24,6 +23,7 @@ import com.example.engflash.ui.home.HomeScreen
 import com.example.engflash.ui.home.HomeViewModel
 import com.example.engflash.ui.vocabulary.FlashcardScreen
 import com.example.engflash.ui.vocabulary.FlashcardViewModel
+import com.example.engflash.ui.vocabulary.PracticeTopicListScreen
 import com.example.engflash.ui.vocabulary.VocabularyLibraryScreen
 import com.example.engflash.ui.vocabulary.VocabularyListScreen
 import com.example.engflash.ui.vocabulary.AddWordScreen
@@ -76,10 +76,11 @@ fun NavGraph(
                 onNavigateToRegister = {
                     navController.navigate(Routes.REGISTER)
                 },
-                onNavigateToForgotPassword = {
-                    navController.navigate(Routes.FORGOT_PASSWORD)
-                },
                 onLoginSuccess = {
+                    val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                    if (uid != null) {
+                        com.example.engflash.util.CloudSyncManager.syncAllProgress(context, uid)
+                    }
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -94,6 +95,10 @@ fun NavGraph(
                     navController.popBackStack()
                 },
                 onRegisterSuccess = {
+                    val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                    if (uid != null) {
+                        com.example.engflash.util.CloudSyncManager.syncAllProgress(context, uid)
+                    }
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -101,14 +106,7 @@ fun NavGraph(
             )
         }
 
-        composable(Routes.FORGOT_PASSWORD) {
-            ForgotPasswordScreen(
-                viewModel = authViewModel,
-                onBackToLogin = {
-                    navController.popBackStack()
-                }
-            )
-        }
+
 
         // ─── Home ────────────────────────────────────────
         composable(Routes.HOME) {
@@ -148,11 +146,24 @@ fun NavGraph(
             )
         }
 
-        // ─── Flashcard Practice ──────────────────────────
+        // ─── Flashcard Practice — Topic List ──────────────────────────
         composable(Routes.FLASHCARD_PLACEHOLDER) {
-            FlashcardScreen(
+            PracticeTopicListScreen(
                 navController = navController,
                 viewModel = flashcardViewModel
+            )
+        }
+
+        // ─── Flashcard Practice — Review Cards ──────────────────────────
+        composable(
+            route = Routes.FLASHCARD_PRACTICE,
+            arguments = listOf(navArgument("topicName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val topicName = backStackEntry.arguments?.getString("topicName") ?: ""
+            FlashcardScreen(
+                navController = navController,
+                viewModel = flashcardViewModel,
+                topicName = topicName
             )
         }
 

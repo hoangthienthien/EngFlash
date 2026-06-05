@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.engflash.ui.navigation.Routes
 import com.example.engflash.util.NotificationHelper
+import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import android.Manifest
 import android.os.Build
@@ -96,6 +97,22 @@ fun ProfileScreen(
         }
     }
 
+    val csvExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/comma-separated-values")
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.exportVocabulariesToUri(context, it)
+        }
+    }
+
+    val csvImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.importVocabulariesFromUri(context, it)
+        }
+    }
+
     // TimePickerDialog (side-effect — không phải Composable)
     if (showTimePicker) {
         android.app.TimePickerDialog(
@@ -123,13 +140,6 @@ fun ProfileScreen(
         }
     }
 
-    val xpCurrent = (uiState.learnedCount * 10).toFloat()
-    val xpTotal   = if (uiState.totalCount == 0) 1000f else (uiState.totalCount * 10).toFloat()
-    val xpProgress by animateFloatAsState(
-        targetValue = xpCurrent / xpTotal,
-        animationSpec = tween(1000),
-        label = "xpAnim"
-    )
 
     val currentStreak by viewModel.streakManager.currentStreak.collectAsStateWithLifecycle()
     val achievements = remember(uiState, currentStreak) { viewModel.getAchievements(currentStreak) }
@@ -292,44 +302,6 @@ fun ProfileScreen(
                             )
 
                             Spacer(Modifier.height(20.dp))
-
-                            // XP Progress
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("TIẾN TRÌNH KINH NGHIỆM (XP)", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                Text(
-                                    "${xpCurrent.toInt()} / ${xpTotal.toInt()} XP",
-                                    color = PurpleLight,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Spacer(Modifier.height(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(CircleShape)
-                                    .background(ProgressTrack)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(xpProgress)
-                                        .fillMaxHeight()
-                                        .clip(CircleShape)
-                                        .background(Brush.horizontalGradient(listOf(PurpleLight, PurplePrimary)))
-                                )
-                            }
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "${(xpTotal - xpCurrent).toInt()} XP nữa để lên cấp độ tiếp theo",
-                                color = TextSecondary,
-                                fontSize = 11.sp,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
-                            )
                         }
                     }
 
@@ -669,21 +641,57 @@ fun ProfileScreen(
                                     Icon(Icons.Default.Schedule, null, tint = PurpleLight, modifier = Modifier.size(14.dp))
                                 }
                             }
-                            
+
                             HorizontalDivider(color = DividerColor)
-                            
-                            // Change Password
+
+                            // Import CSV
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { navController.navigate(Routes.CHANGE_PASSWORD) },
+                                    .clickable { csvImportLauncher.launch("text/*") },
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Lock, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    Icon(Icons.Default.Upload, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(10.dp))
-                                    Text("Đổi mật khẩu", color = TextPrimary, fontSize = 14.sp)
+                                    Text("Nhập từ vựng từ file (CSV)", color = TextPrimary, fontSize = 14.sp)
+                                }
+                                Icon(Icons.Default.ChevronRight, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                            }
+
+                            HorizontalDivider(color = DividerColor)
+
+                            // Export CSV
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { csvExportLauncher.launch("engflash_vocab_backup.csv") },
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Download, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Text("Xuất từ vựng ra file (CSV)", color = TextPrimary, fontSize = 14.sp)
+                                }
+                                Icon(Icons.Default.ChevronRight, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                            }
+
+                            HorizontalDivider(color = DividerColor)
+
+                            // Clean up duplicates
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.cleanUpDuplicates(context) },
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.CleaningServices, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Text("Dọn dẹp từ trùng lặp", color = TextPrimary, fontSize = 14.sp)
                                 }
                                 Icon(Icons.Default.ChevronRight, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
                             }

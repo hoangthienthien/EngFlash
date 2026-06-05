@@ -11,12 +11,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
     private val app = application as EngFlashApplication
 
     private val getUserProfileUseCase  = app.getUserProfileUseCase
     private val updateUserProfileUseCase = app.updateUserProfileUseCase
+    private val getAllVocabularyListUseCase = app.getAllVocabularyListUseCase
+    private val addVocabularyListUseCase = app.addVocabularyListUseCase
 
     // ─── Achievement & Theme support ─────────────────────────────
     private val achievementManager = com.example.engflash.util.AchievementManager()
@@ -34,18 +42,47 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadStatistics() {
         viewModelScope.launch {
-            app.database.vocabularyDao().getLearnedCount().collect { count ->
-                _uiState.value = _uiState.value.copy(learnedCount = count)
-            }
-        }
-        viewModelScope.launch {
-            app.database.vocabularyDao().getTotalCount().collect { count ->
-                _uiState.value = _uiState.value.copy(totalCount = count)
-            }
-        }
-        viewModelScope.launch {
-            app.database.vocabularyDao().getFavorites().collect { list ->
-                _uiState.value = _uiState.value.copy(favoriteCount = list.size)
+            app.database.vocabularyDao().getAll().collect { list ->
+                val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+                val now = System.currentTimeMillis()
+                var learnedCount = 0
+                var favoriteCount = 0
+                val totalCount = list.size
+
+                for (vocab in list) {
+                    if (vocab.isFavorite) {
+                        favoriteCount++
+                        
+                        val rating = prefs.getString("rating_${vocab.id}", null)
+                        val level = if (rating != null) {
+                            rating.lowercase()
+                        } else {
+                            val nextReview = prefs.getLong("next_review_${vocab.id}", 0L)
+                            if (nextReview == 0L) {
+                                "unlearned"
+                            } else {
+                                val diff = nextReview - now
+                                if (diff > 2 * 24 * 60 * 60 * 1000L) {
+                                    "giỏi"
+                                } else if (diff > 5 * 60 * 1000L) {
+                                    "được"
+                                } else {
+                                    "yếu"
+                                }
+                            }
+                        }
+
+                        if (level == "giỏi") {
+                            learnedCount++
+                        }
+                    }
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    learnedCount = learnedCount,
+                    totalCount = totalCount,
+                    favoriteCount = favoriteCount
+                )
             }
         }
     }
@@ -145,6 +182,67 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     isSaving = false,
                     errorMessage = e.message ?: "Lỗi khi lưu thông tin"
                 )
+            }
+        }
+    }
+
+    fun exportVocabulariesToUri(context: Context, uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val list = getAllVocabularyListUseCase()
+                val csvContent = com.example.engflash.util.CsvHelper.generateCsv(list)
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(csvContent.toByteArray())
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Xuất thành công ${list.size} từ vựng!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Lỗi khi xuất file: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun importVocabulariesFromUri(context: Context, uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri) ?: return@launch
+                val csvContent = inputStream.bufferedReader().use { it.readText() }
+                val list = com.example.engflash.util.CsvHelper.parseCsv(csvContent)
+                if (list.isNotEmpty()) {
+                    addVocabularyListUseCase(list)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Nhập thành công ${list.size} từ vựng mới!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "File trống hoặc sai định dạng CSV!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Lỗi khi nhập file: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun cleanUpDuplicates(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val deletedCount = app.deleteDuplicateVocabulariesUseCase()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Đã dọn dẹp xong $deletedCount từ trùng lặp!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Lỗi khi dọn dẹp: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

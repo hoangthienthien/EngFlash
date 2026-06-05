@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.sp
 fun LoginScreen(
     viewModel: AuthViewModel,
     onNavigateToRegister: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     val loginState by viewModel.loginState.collectAsState()
@@ -338,24 +337,6 @@ fun LoginScreen(
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
-
-                        // Forgot Password Link
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Quên mật khẩu?",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clickable { onNavigateToForgotPassword() }
-                                    .padding(8.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
 
                         // Don't have an account? Join the Fleet
                         Row(

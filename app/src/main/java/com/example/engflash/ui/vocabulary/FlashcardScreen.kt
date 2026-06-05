@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -49,10 +50,12 @@ import java.util.Locale
 @Composable
 fun FlashcardScreen(
     navController: NavController,
-    viewModel: FlashcardViewModel
+    viewModel: FlashcardViewModel,
+    topicName: String
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val currentStreak by viewModel.streakManager.currentStreak.collectAsStateWithLifecycle()
+    val reviewedIds by viewModel.reviewedIds.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     // Initialize TTS
@@ -70,32 +73,32 @@ fun FlashcardScreen(
         }
     }
 
-    // Load vocabularies once
-    LaunchedEffect(Unit) {
-        viewModel.loadTopicOrFilter(uiState.selectedFilter)
+    // Load flashcard vocabularies for this topic
+    LaunchedEffect(topicName) {
+        viewModel.loadFlashcardByTopic(topicName)
     }
 
     // Session progress tracking
-    var initialCount by remember(uiState.selectedFilter) { mutableIntStateOf(0) }
-    val remainingCount = uiState.vocabularies.size
-    LaunchedEffect(remainingCount) {
-        if (remainingCount > initialCount) {
-            initialCount = remainingCount
-        }
-    }
-    val completedCount = if (initialCount > remainingCount) initialCount - remainingCount else 0
-    val progressPercent = if (initialCount > 0) (completedCount * 100) / initialCount else 0
+    val totalCount = uiState.vocabularies.size
+    val reviewedCount = reviewedIds.size
+    val progressPercent = if (totalCount > 0) (reviewedCount * 100) / totalCount else 0
+    val allReviewed = totalCount > 0 && reviewedCount >= totalCount
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "EngFlash",
+                        topicName,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 20.sp
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Quay lại", tint = MaterialTheme.colorScheme.onBackground)
+                    }
                 },
                 actions = {
                     Box(
@@ -154,7 +157,11 @@ fun FlashcardScreen(
                     icon = { Icon(Icons.Default.Style, contentDescription = "Luyện tập") },
                     label = { Text("Luyện tập", fontSize = 11.sp) },
                     selected = true,
-                    onClick = { /* Already here */ }
+                    onClick = {
+                        navController.navigate(Routes.FLASHCARD_PLACEHOLDER) {
+                            popUpTo(Routes.FLASHCARD_PLACEHOLDER) { inclusive = true }
+                        }
+                    }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.School, contentDescription = "Ngữ pháp") },
@@ -188,91 +195,40 @@ fun FlashcardScreen(
                 CircularProgressIndicator()
             }
         } else if (vocabularies.isEmpty()) {
+            // Empty state — no flashcard words in this topic
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                // Topic Selector Chips at the top even when empty
-                val dbTopics by viewModel.allTopics.collectAsState()
-                val filterList = remember(dbTopics) {
-                    listOf("All", "Favorites") + dbTopics
-                }
-
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(filterList) { filter ->
-                        val isSelected = uiState.selectedFilter == filter
-                        val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                        
-                        Surface(
-                            onClick = { viewModel.loadTopicOrFilter(filter) },
-                            color = containerColor,
-                            contentColor = contentColor,
-                            shape = RoundedCornerShape(16.dp),
-                            border = if (!isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null,
-                            modifier = Modifier.height(36.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = when (filter) {
-                                        "All" -> "Tất cả"
-                                        "Favorites" -> "Yêu thích"
-                                        else -> filter
-                                    },
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(48.dp))
-
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.DoneAll,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "Tất cả đã hoàn thành!",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Bạn đã ôn tập xong tất cả các từ trong danh mục này. Hãy chọn danh mục khác hoặc thêm từ mới để tiếp tục học tập nhé!",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
+                Icon(
+                    imageVector = Icons.Default.Style,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Chưa có từ nào trong chủ đề này",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Hãy vào phần Từ vựng và bấm \"Thêm vào Flashcard\" để thêm từ vào chủ đề này.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
             }
         } else {
             val currentVocab = vocabularies[currentIndex]
+            val isCurrentReviewed = currentVocab.id in reviewedIds
 
             Column(
                 modifier = Modifier
@@ -284,49 +240,6 @@ fun FlashcardScreen(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    // Topic Selector Chips at the top
-                    val dbTopics by viewModel.allTopics.collectAsState()
-                    val filterList = remember(dbTopics) {
-                        listOf("All", "Favorites") + dbTopics
-                    }
-
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(filterList) { filter ->
-                            val isSelected = uiState.selectedFilter == filter
-                            val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                            
-                            Surface(
-                                onClick = { viewModel.loadTopicOrFilter(filter) },
-                                color = containerColor,
-                                contentColor = contentColor,
-                                shape = RoundedCornerShape(16.dp),
-                                border = if (!isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null,
-                                modifier = Modifier.height(36.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = when (filter) {
-                                            "All" -> "Tất cả"
-                                            "Favorites" -> "Yêu thích"
-                                            else -> filter
-                                        },
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
-                    }
-
                     // ─── Daily Progress ───────────────────────────
                     Row(
                         modifier = Modifier
@@ -337,12 +250,12 @@ fun FlashcardScreen(
                     ) {
                         Column {
                             Text(
-                                "Tiến độ học tập",
+                                "Tiến độ ôn tập",
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                "$completedCount / $initialCount thẻ",
+                                "$reviewedCount / $totalCount thẻ",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -366,6 +279,38 @@ fun FlashcardScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
+                        }
+                    }
+
+                    // ─── "All reviewed" banner ───
+                    if (allReviewed) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.DoneAll,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Đã ôn tập xong! Bạn có thể xem lại bất cứ lúc nào.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
                 }
@@ -431,6 +376,34 @@ fun FlashcardScreen(
                                         )
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                 )
+
+                                // Reviewed indicator at top-center
+                                if (isCurrentReviewed) {
+                                    Row(
+                                        modifier = Modifier
+                                            .align(Alignment.TopCenter)
+                                            .background(
+                                                MaterialTheme.colorScheme.tertiaryContainer,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.tertiary,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            "Đã ôn",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.tertiary
+                                        )
+                                    }
+                                }
 
                                 if (hasImage) {
                                     // Image Layout: Word top-ish, Image bottom-ish
@@ -711,7 +684,7 @@ fun FlashcardScreen(
                                         .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.errorContainer)
                                         .border(1.5.dp, MaterialTheme.colorScheme.error, CircleShape)
-                                        .clickable { viewModel.reviewCard(currentVocab.id, "yếu") },
+                                        .clickable { viewModel.reviewCardPersistent(currentVocab.id, "yếu") },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -736,7 +709,7 @@ fun FlashcardScreen(
                                         .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.primaryContainer)
                                         .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                                        .clickable { viewModel.reviewCard(currentVocab.id, "được") },
+                                        .clickable { viewModel.reviewCardPersistent(currentVocab.id, "được") },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -761,7 +734,7 @@ fun FlashcardScreen(
                                         .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.tertiaryContainer)
                                         .border(1.5.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
-                                        .clickable { viewModel.reviewCard(currentVocab.id, "giỏi") },
+                                        .clickable { viewModel.reviewCardPersistent(currentVocab.id, "giỏi") },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
