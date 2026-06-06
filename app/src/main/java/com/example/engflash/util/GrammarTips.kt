@@ -21,10 +21,6 @@ object GrammarTipsPool {
             "Yesterday, last week → Past Simple. Already, just, ever → Present Perfect."
         ),
         GrammarTip(
-            "Động từ bất quy tắc",
-            "Hãy học nhóm 3 cùng lúc: go-went-gone, see-saw-seen, take-took-taken."
-        ),
-        GrammarTip(
             "Câu điều kiện loại 2",
             "Dùng 'were' cho mọi chủ ngữ: 'If I were you...' — KHÔNG viết 'If I was'."
         ),
@@ -50,10 +46,6 @@ object GrammarTipsPool {
         GrammarTip(
             "Mẹo nhớ Modal Verbs",
             "Must = 90% chắc chắn, Might = 50%, Can't = 0% khả năng xảy ra."
-        ),
-        GrammarTip(
-            "Thì tiếp diễn vs Đơn",
-            "Hành động đang xảy ra lúc nói → tiếp diễn. Thói quen hàng ngày → đơn."
         ),
         GrammarTip(
             "Bẫy thường gặp",

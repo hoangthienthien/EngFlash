@@ -17,7 +17,7 @@ interface VocabularyRepository {
     fun getAllTopics(): Flow<List<String>>
 
     suspend fun getAllList(): List<Vocabulary>
-    suspend fun addVocabularyList(list: List<Vocabulary>)
+    suspend fun addVocabularyList(list: List<Vocabulary>): Int
     suspend fun deleteDuplicateVocabularies(): Int
 
     // ─── Flashcard (Practice) ───

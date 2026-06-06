@@ -328,6 +328,16 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun resetTopicProgress(topic: String) {
+        viewModelScope.launch {
+            val flow = getFlashcardByTopicUseCase(topic)
+            val list = flow.first()
+            for (vocab in list) {
+                updateVocabularyLearnedStatusUseCase(vocab.id, false, 0L, "")
+            }
+        }
+    }
+
     fun addNewVocabulary(
         word: String,
         meaning: String,

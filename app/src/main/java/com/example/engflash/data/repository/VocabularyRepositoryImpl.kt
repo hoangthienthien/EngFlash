@@ -120,9 +120,10 @@ class VocabularyRepositoryImpl(
         return vocabularyDao.getAllList().map { it.toDomain() }
     }
 
-    override suspend fun addVocabularyList(list: List<Vocabulary>) {
+    override suspend fun addVocabularyList(list: List<Vocabulary>): Int {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         val prefs = context.getSharedPreferences("engflash_prefs", Context.MODE_PRIVATE)
+        var addedCount = 0
         for (vocab in list) {
             val existing = vocabularyDao.getByWordIgnoreCase(vocab.word.trim())
             if (existing != null) {
@@ -130,6 +131,7 @@ class VocabularyRepositoryImpl(
             }
             val entity = vocab.toEntity()
             val newId = vocabularyDao.insert(entity).toInt()
+            addedCount++
             if (uid != null) {
                 val updatedEntity = entity.copy(id = newId)
                 val nextReview = prefs.getLong("next_review_$newId", 0L)
@@ -137,6 +139,7 @@ class VocabularyRepositoryImpl(
                 CloudSyncManager.pushVocabProgress(uid, updatedEntity, nextReview, rating)
             }
         }
+        return addedCount
     }
 
     override suspend fun deleteDuplicateVocabularies(): Int {

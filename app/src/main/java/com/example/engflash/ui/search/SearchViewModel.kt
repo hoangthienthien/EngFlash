@@ -34,7 +34,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             queryFlow
                 .debounce(300)
                 .distinctUntilChanged()
-                .collect { query ->
+                .collectLatest { query ->
                     if (query.isBlank()) {
                         _uiState.value = _uiState.value.copy(
                             vocabularies = emptyList(),
