@@ -69,9 +69,6 @@ fun GrammarTopicListScreen(
     val totalRules = grammarRules.size
     val overallProgressPercent = if (totalRules > 0) (completedRulesCount * 100 / totalRules) else 0
 
-    // Random tips — chọn 1 lần khi màn hình được compose
-    val studyTip = remember { GrammarTipsPool.getRandomStudyTip() }
-    val aiInsight = remember { GrammarTipsPool.getRandomAiInsight() }
 
     Scaffold(
         bottomBar = {
@@ -182,7 +179,7 @@ fun GrammarTopicListScreen(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xFFF1F0F7))
+                            .background(Color(0xFFFF6B35).copy(alpha = 0.15f))
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Row(
@@ -193,7 +190,7 @@ fun GrammarTopicListScreen(
                                 text = "$currentStreak 🔥",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextPrimary
+                                color = Color(0xFFFF6B35)
                             )
                         }
                     }
@@ -283,106 +280,6 @@ fun GrammarTopicListScreen(
                     },
                     onStartQuiz = { onStartQuiz(rule.id) }
                 )
-            }
-
-            // ─── Smart Tips & AI Insights ──────────────────
-            item {
-                Spacer(Modifier.height(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    // Smart Tips (Clean card - no icons)
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(containerColor = CardBg),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(PurpleLight)
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(
-                                        text = "MẸO HỌC TẬP",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = PurplePrimary
-                                    )
-                                }
-                            }
-                            Spacer(Modifier.height(12.dp))
-                            Text(
-                                text = studyTip.title,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = TextPrimary
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = studyTip.description,
-                                color = TextSecondary,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
-
-                    // AI Insights (Clean card - no icons)
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(containerColor = CardBg),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(Color(0xFFF1F2F6))
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(
-                                        text = "PHÂN TÍCH AI",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF57606F)
-                                    )
-                                }
-                            }
-                            Spacer(Modifier.height(12.dp))
-                            Text(
-                                text = aiInsight.title,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = TextPrimary
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                text = aiInsight.description,
-                                color = TextSecondary,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
-                }
             }
         }
     }
@@ -672,7 +569,7 @@ fun GrammarRuleCard(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "Luyện tập nhanh ⚡", // Vietnamese quiz title
+                                text = if (savedScore != -1) "Thực hiện lại ⚡" else "Luyện tập nhanh ⚡", // Vietnamese quiz title
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = Color.White

@@ -48,6 +48,11 @@ import kotlinx.coroutines.launch
  *   Repositories → chỉ dùng nội bộ để xây dựng UseCase.
  *   UseCases     → được expose ra ngoài để ViewModel sử dụng.
  */
+
+
+
+ // Lớp application chính là lớp đại diện cho toàn bộ vòng đời của ứng dụng (từ lúc mở app cho đến khi
+ //app bị tắt hoàn toàn)
 class EngFlashApplication : Application() {
 
     // ─── Database ────────────────────────────────────────

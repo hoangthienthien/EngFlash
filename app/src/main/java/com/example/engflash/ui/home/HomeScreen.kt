@@ -496,7 +496,6 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        MasteryStatItem(value = "${stats.reviewingCount}", label = "Đang ôn tập")
                         MasteryStatItem(value = "${stats.unlearnedCount}", label = "Chưa thuộc")
                         MasteryStatItem(value = "${stats.retentionRate}%", label = "Ghi nhớ")
                     }
