@@ -265,6 +265,26 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     fun logout() {
         logoutUseCase()
+        // Xóa SharedPreferences nhưng giữ lại trạng thái đã xem onboarding (để không bị nhảy vào Onboarding lại)
+        val context = app.applicationContext
+        val prefs = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+        val hasSeenOnboarding = prefs.getBoolean("has_seen_onboarding", false)
+        prefs.edit().clear().putBoolean("has_seen_onboarding", hasSeenOnboarding).apply()
+        
+        val streakPrefs = context.getSharedPreferences("engflash_streak", android.content.Context.MODE_PRIVATE)
+        streakPrefs.edit().clear().apply()
+
+        // Reset dữ liệu cục bộ trong Room Database
+        // Chạy trên Scope ngoài IO để không bị cancel khi Activity kết thúc
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                app.database.vocabularyDao().resetAllVocabularyProgress()
+                app.database.userProfileDao().deleteAll()
+                android.util.Log.d("AuthViewModel", "Reset local DB progress successfully on logout")
+            } catch (e: Exception) {
+                android.util.Log.e("AuthViewModel", "Failed to reset local DB on logout", e)
+            }
+        }
     }
 
     fun getCurrentUser(): User? = getCurrentUserUseCase()

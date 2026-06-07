@@ -63,16 +63,16 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                             } else {
                                 val diff = nextReview - now
                                 if (diff > 2 * 24 * 60 * 60 * 1000L) {
-                                    "giỏi"
+                                    "easy"
                                 } else if (diff > 5 * 60 * 1000L) {
-                                    "được"
+                                    "good"
                                 } else {
-                                    "yếu"
+                                    "again"
                                 }
                             }
                         }
 
-                        if (level == "giỏi") {
+                        if (level in listOf("giỏi", "easy", "good")) {
                             learnedCount++
                         }
                     }
@@ -90,6 +90,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun loadProfile() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
+            android.util.Log.d("ProfileViewModel", "loadProfile: currentUser is null")
             _uiState.value = _uiState.value.copy(
                 errorMessage = "Chưa đăng nhập"
             )
@@ -97,11 +98,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
 
         val uid = currentUser.uid
+        android.util.Log.d("ProfileViewModel", "loadProfile called for uid: $uid")
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
             try {
                 val profile = getUserProfileUseCase(uid)
+                android.util.Log.d("ProfileViewModel", "getUserProfileUseCase returned: $profile")
                 if (profile != null) {
                     _uiState.value = _uiState.value.copy(
                         profile = profile,
@@ -116,6 +119,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                         avatarUrl = "",
                         bio = "Học tiếng Anh mỗi ngày cùng EngFlash!"
                     )
+                    android.util.Log.d("ProfileViewModel", "No profile found, saving default: $defaultProfile")
                     // Save default profile to local Room
                     updateUserProfileUseCase(defaultProfile)
                     _uiState.value = _uiState.value.copy(
@@ -124,6 +128,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     )
                 }
             } catch (e: Exception) {
+                android.util.Log.e("ProfileViewModel", "Error in loadProfile", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = e.message ?: "Lỗi khi tải thông tin cá nhân"
@@ -158,11 +163,13 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun saveProfile() {
         val currentProfile = _uiState.value.profile ?: return
+        android.util.Log.d("ProfileViewModel", "saveProfile called for profile: $currentProfile")
         _uiState.value = _uiState.value.copy(isSaving = true, saveSuccess = false, errorMessage = null)
 
         viewModelScope.launch {
             try {
                 updateUserProfileUseCase(currentProfile)
+                android.util.Log.d("ProfileViewModel", "Successfully called updateUserProfileUseCase")
 
                 // Sync with Firebase User profile too (displayName)
                 val currentUser = FirebaseAuth.getInstance().currentUser
@@ -171,6 +178,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                         displayName = currentProfile.displayName
                     }
                     currentUser.updateProfile(profileUpdates)
+                    android.util.Log.d("ProfileViewModel", "Triggered Firebase Auth user profile update")
                 }
 
                 _uiState.value = _uiState.value.copy(
@@ -178,6 +186,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     saveSuccess = true
                 )
             } catch (e: Exception) {
+                android.util.Log.e("ProfileViewModel", "Error in saveProfile", e)
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     errorMessage = e.message ?: "Lỗi khi lưu thông tin"

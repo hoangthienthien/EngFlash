@@ -72,9 +72,9 @@ object CloudSyncManager {
     }
 
     /**
-     * Pushes a specific vocabulary item's progress (favorites, learned status, next review date) to Firestore.
+     * Pushes a specific vocabulary item's progress (favorites, learned status, next review date, SM-2 params) to Firestore.
      */
-    fun pushVocabProgress(uid: String, vocab: VocabularyEntity, nextReview: Long, rating: String) {
+    fun pushVocabProgress(uid: String, vocab: VocabularyEntity, nextReview: Long, rating: String, easeFactor: Double = 2.5, repetitions: Int = 0, interval: Int = 0) {
         val data = hashMapOf(
             "word" to vocab.word,
             "meaning" to vocab.meaning,
@@ -88,6 +88,9 @@ object CloudSyncManager {
             "imageUrl" to vocab.imageUrl,
             "nextReview" to nextReview,
             "rating" to rating,
+            "easeFactor" to easeFactor,
+            "repetitions" to repetitions,
+            "interval" to interval,
             "updatedAt" to System.currentTimeMillis()
         )
 
@@ -100,7 +103,7 @@ object CloudSyncManager {
                     .document(vocab.word)
                     .set(data)
                     .await()
-                android.util.Log.d("CloudSyncManager", "Pushed vocab progress for: ${vocab.word} with rating: $rating")
+                android.util.Log.d("CloudSyncManager", "Pushed vocab progress for: ${vocab.word} with rating: $rating, EF: $easeFactor, reps: $repetitions")
             } catch (e: Exception) {
                 android.util.Log.e("CloudSyncManager", "Failed to push vocab progress", e)
             }
@@ -191,6 +194,7 @@ object CloudSyncManager {
 
                 val generalPrefs = context.getSharedPreferences("engflash_prefs", Context.MODE_PRIVATE)
                 val editor = generalPrefs.edit()
+                val updatedEntities = mutableListOf<VocabularyEntity>()
 
                 for (doc in vocabProgressQuery.documents) {
                     val word = doc.getString("word") ?: continue
@@ -204,7 +208,11 @@ object CloudSyncManager {
                     val difficulty = doc.getString("difficulty") ?: "ADVANCED"
                     val imageUrl = doc.getString("imageUrl")
                     val nextReview = doc.getLong("nextReview") ?: 0L
-                    val rating = doc.getString("rating") ?: "yếu"
+                    val rating = doc.getString("rating") ?: "again"
+                    // SM-2 params
+                    val easeFactor = doc.getDouble("easeFactor") ?: 2.5
+                    val repetitions = (doc.getLong("repetitions") ?: 0L).toInt()
+                    val interval = (doc.getLong("interval") ?: 0L).toInt()
 
                     // Check if word exists in local DB
                     val existing = db.vocabularyDao().getByWord(word)
@@ -215,9 +223,12 @@ object CloudSyncManager {
                             isFavorite = isFavorite,
                             isLearned = isLearned
                         )
-                        db.vocabularyDao().update(updated)
+                        updatedEntities.add(updated)
                         editor.putLong("next_review_${existing.id}", nextReview)
                         editor.putString("rating_${existing.id}", rating)
+                        editor.putFloat("ease_factor_${existing.id}", easeFactor.toFloat())
+                        editor.putInt("repetitions_${existing.id}", repetitions)
+                        editor.putInt("interval_${existing.id}", interval)
                     } else {
                         // Word does not exist locally (it's a custom-added word from cloud)
                         val customVocab = VocabularyEntity(
@@ -235,9 +246,18 @@ object CloudSyncManager {
                         val newId = db.vocabularyDao().insert(customVocab)
                         editor.putLong("next_review_$newId", nextReview)
                         editor.putString("rating_$newId", rating)
+                        editor.putFloat("ease_factor_$newId", easeFactor.toFloat())
+                        editor.putInt("repetitions_$newId", repetitions.toInt())
+                        editor.putInt("interval_$newId", interval.toInt())
                     }
                 }
-                editor.apply()
+                // Ghi SharedPreferences đồng bộ trước để tránh race condition khi Room Flow kích hoạt recomposition
+                editor.commit()
+
+                // Cập nhật database Room sau khi SharedPreferences đã hoàn tất ghi đĩa
+                for (updated in updatedEntities) {
+                    db.vocabularyDao().update(updated)
+                }
                 android.util.Log.d("CloudSyncManager", "Vocabulary progress synced successfully from cloud.")
 
             } catch (e: Exception) {

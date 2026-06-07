@@ -53,7 +53,10 @@ class VocabularyRepositoryImpl(
         if (vocab != null) {
             val uid = FirebaseAuth.getInstance().currentUser?.uid
             if (uid != null) {
-                CloudSyncManager.pushVocabProgress(uid, vocab, nextReview, rating)
+                val ef = prefs.getFloat("ease_factor_$id", 2.5f).toDouble()
+                val reps = prefs.getInt("repetitions_$id", 0)
+                val interval = prefs.getInt("interval_$id", 0)
+                CloudSyncManager.pushVocabProgress(uid, vocab, nextReview, rating, ef, reps, interval)
             }
         }
     }
@@ -135,8 +138,11 @@ class VocabularyRepositoryImpl(
             if (uid != null) {
                 val updatedEntity = entity.copy(id = newId)
                 val nextReview = prefs.getLong("next_review_$newId", 0L)
-                val rating = prefs.getString("rating_$newId", "yếu") ?: "yếu"
-                CloudSyncManager.pushVocabProgress(uid, updatedEntity, nextReview, rating)
+                val rating = prefs.getString("rating_$newId", "again") ?: "again"
+                val ef = prefs.getFloat("ease_factor_$newId", 2.5f).toDouble()
+                val reps = prefs.getInt("repetitions_$newId", 0)
+                val interval = prefs.getInt("interval_$newId", 0)
+                CloudSyncManager.pushVocabProgress(uid, updatedEntity, nextReview, rating, ef, reps, interval)
             }
         }
         return addedCount
@@ -177,8 +183,11 @@ class VocabularyRepositoryImpl(
         if (uid != null) {
             val prefs = context.getSharedPreferences("engflash_prefs", Context.MODE_PRIVATE)
             val nextReview = prefs.getLong("next_review_${entity.id}", 0L)
-            val rating = prefs.getString("rating_${entity.id}", "yếu") ?: "yếu"
-            CloudSyncManager.pushVocabProgress(uid, entity, nextReview, rating)
+            val rating = prefs.getString("rating_${entity.id}", "again") ?: "again"
+            val ef = prefs.getFloat("ease_factor_${entity.id}", 2.5f).toDouble()
+            val reps = prefs.getInt("repetitions_${entity.id}", 0)
+            val interval = prefs.getInt("interval_${entity.id}", 0)
+            CloudSyncManager.pushVocabProgress(uid, entity, nextReview, rating, ef, reps, interval)
         }
     }
 }

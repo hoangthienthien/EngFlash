@@ -133,6 +133,10 @@ fun ProfileScreen(
         showTimePicker = false
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
+
     LaunchedEffect(uiState.profile) {
         uiState.profile?.let {
             nameInput = it.displayName
