@@ -1,6 +1,7 @@
 package com.example.engflash.ui.vocabulary
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,6 +40,33 @@ fun PracticeTopicListScreen(
     val PurpleLight = MaterialTheme.colorScheme.primaryContainer
 
     val flashcardTopics by viewModel.flashcardTopics.collectAsState()
+
+    var showConfirmDialog by remember { mutableStateOf(false) }
+    var topicToReset by remember { mutableStateOf("") }
+
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("Làm lại chủ đề?") },
+            text = { Text("Tất cả tiến trình ôn tập của chủ đề \"$topicToReset\" sẽ được đặt lại. Bạn có chắc chắn muốn làm lại?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.resetTopicProgress(topicToReset)
+                        showConfirmDialog = false
+                        navController.navigate(Routes.flashcardPractice(topicToReset))
+                    }
+                ) {
+                    Text("Xác nhận", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Hủy")
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -320,6 +348,33 @@ fun PracticeTopicListScreen(
                                         color = if (progress == 1f) Color(0xFF10AC84) else PurplePrimary,
                                         trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                                     )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .border(1.dp, PurplePrimary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                                            .background(PurplePrimary.copy(alpha = 0.05f))
+                                            .clickable {
+                                                topicToReset = topicName
+                                                showConfirmDialog = true
+                                            }
+                                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Refresh,
+                                            contentDescription = null,
+                                            tint = PurplePrimary,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "Làm lại",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = PurplePrimary
+                                        )
+                                    }
                                 }
                             }
 

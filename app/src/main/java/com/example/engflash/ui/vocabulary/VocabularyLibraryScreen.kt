@@ -72,11 +72,7 @@ fun VocabularyLibraryScreen(
                         Icon(Icons.Default.Menu, contentDescription = "Menu", tint = PurplePrimary)
                     }
                 },
-                actions = {
-                    IconButton(onClick = { /* Search action */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Tìm kiếm", tint = PurplePrimary)
-                    }
-                },
+
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = PageBg
                 )

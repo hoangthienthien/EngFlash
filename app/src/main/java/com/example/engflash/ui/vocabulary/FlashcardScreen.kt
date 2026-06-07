@@ -80,9 +80,15 @@ fun FlashcardScreen(
 
     // Session progress tracking
     val totalCount = uiState.vocabularies.size
-    val reviewedCount = reviewedIds.size
-    val progressPercent = if (totalCount > 0) (reviewedCount * 100) / totalCount else 0
-    val allReviewed = totalCount > 0 && reviewedCount >= totalCount
+    val masteredCount = remember(uiState.vocabularies, reviewedIds) {
+        val prefs = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+        uiState.vocabularies.count { vocab ->
+            val rating = prefs.getString("rating_${vocab.id}", null)
+            rating?.lowercase() == "giỏi"
+        }
+    }
+    val progressPercent = if (totalCount > 0) (masteredCount * 100) / totalCount else 0
+    val allReviewed = totalCount > 0 && masteredCount >= totalCount
 
     Scaffold(
         topBar = {
@@ -105,7 +111,7 @@ fun FlashcardScreen(
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .background(Color(0xFFFF6B35).copy(alpha = 0.15f))
                             .padding(horizontal = 12.dp, vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -116,10 +122,10 @@ fun FlashcardScreen(
                             Icon(
                                 imageVector = FireIcon,
                                 contentDescription = "Streak",
-                                tint = MaterialTheme.colorScheme.secondary,
+                                tint = Color(0xFFFF6B35),
                                 modifier = Modifier.size(18.dp)
                             )
-                            Text("$currentStreak", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            Text("$currentStreak", fontWeight = FontWeight.Bold, color = Color(0xFFFF6B35))
                         }
                     }
                 },
@@ -255,7 +261,7 @@ fun FlashcardScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                "$reviewedCount / $totalCount thẻ",
+                                "$masteredCount / $totalCount thẻ",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -363,19 +369,45 @@ fun FlashcardScreen(
                                     "ADVERB" -> "Trạng từ"
                                     else -> currentVocab.partOfSpeech
                                 }
-                                Text(
-                                    text = displayPos,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                    fontSize = 12.sp,
-                                    modifier = Modifier
-                                        .align(Alignment.TopStart)
-                                        .background(
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-                                            RoundedCornerShape(8.dp)
-                                        )
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
+                                Column(
+                                    modifier = Modifier.align(Alignment.TopStart),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = displayPos,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                        fontSize = 12.sp,
+                                        modifier = Modifier
+                                            .background(
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+
+                                    val prefs = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+                                    val lastRating = prefs.getString("rating_${currentVocab.id}", null)
+                                    if (lastRating != null && lastRating.isNotBlank()) {
+                                        val (text, color, bg) = when (lastRating.lowercase()) {
+                                            "giỏi" -> Triple("Giỏi", Color(0xFF10AC84), Color(0xFF10AC84).copy(alpha = 0.15f))
+                                            "được" -> Triple("Được", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                                            "yếu" -> Triple("Yếu", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
+                                            else -> Triple(null, null, null)
+                                        }
+                                        if (text != null && color != null && bg != null) {
+                                            Text(
+                                                text = "Gần nhất: $text",
+                                                fontWeight = FontWeight.Bold,
+                                                color = color,
+                                                fontSize = 10.sp,
+                                                modifier = Modifier
+                                                    .background(bg, RoundedCornerShape(6.dp))
+                                                    .padding(horizontal = 6.dp, vertical = 3.dp)
+                                            )
+                                        }
+                                    }
+                                }
 
                                 // Reviewed indicator at top-center
                                 if (isCurrentReviewed) {

@@ -213,9 +213,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 val csvContent = inputStream.bufferedReader().use { it.readText() }
                 val list = com.example.engflash.util.CsvHelper.parseCsv(csvContent)
                 if (list.isNotEmpty()) {
-                    addVocabularyListUseCase(list)
+                    val addedCount = addVocabularyListUseCase(list)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Nhập thành công ${list.size} từ vựng mới!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Nhập thành công $addedCount từ vựng mới!", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     withContext(Dispatchers.Main) {

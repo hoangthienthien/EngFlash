@@ -58,8 +58,8 @@ sealed class OtpState {
 }
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
-
     // ─── UseCases (nhận qua Application thay vì Repository trực tiếp) ─
+    // Manual Dependency injection 
     private val app = application as EngFlashApplication
     private val loginUseCase: LoginUseCase = app.loginUseCase
     private val registerUseCase: RegisterUseCase = app.registerUseCase
