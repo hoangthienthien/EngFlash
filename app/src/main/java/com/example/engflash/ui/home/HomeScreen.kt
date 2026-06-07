@@ -72,8 +72,6 @@ fun HomeScreen(
         }
     }
 
-    val masteryPercent = if (stats.totalCount > 0) (stats.masteredCount * 100 / stats.totalCount) else 0
-
     Scaffold(
         bottomBar = {
             NavigationBar(
@@ -238,32 +236,7 @@ fun HomeScreen(
                             fontSize = 13.sp
                         )
                     }
-                    Spacer(Modifier.width(12.dp))
-                    // Circular progress
-                    val primaryLightColor = PurpleLight
-                    val primaryColor = PurplePrimary
-                    Box(contentAlignment = Alignment.Center) {
-                        Canvas(modifier = Modifier.size(56.dp)) {
-                            drawArc(
-                                color = primaryLightColor,
-                                startAngle = -90f,
-                                sweepAngle = 360f,
-                                useCenter = false,
-                                style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
-                            )
-                            drawArc(
-                                color = primaryColor,
-                                startAngle = -90f,
-                                sweepAngle = 360f * (masteryPercent.toFloat() / 100f),
-                                useCenter = false,
-                                style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round)
-                            )
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Thuộc", color = TextSecondary, fontSize = 9.sp)
-                            Text("$masteryPercent%", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = PurplePrimary)
-                        }
-                    }
+
                 }
             }
 

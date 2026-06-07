@@ -1,6 +1,10 @@
 package com.example.engflash.ui.vocabulary
 
+import com.example.engflash.util.SM2Algorithm
+
 import android.speech.tts.TextToSpeech
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
@@ -84,7 +88,7 @@ fun FlashcardScreen(
         val prefs = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
         uiState.vocabularies.count { vocab ->
             val rating = prefs.getString("rating_${vocab.id}", null)
-            rating?.lowercase() == "giỏi"
+            rating?.lowercase() in listOf("good", "easy", "giỏi")
         }
     }
     val progressPercent = if (totalCount > 0) (masteredCount * 100) / totalCount else 0
@@ -338,7 +342,7 @@ fun FlashcardScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
-                            .fillMaxHeight(0.85f)
+                            .fillMaxHeight(0.95f)
                             .graphicsLayer {
                                 rotationY = rotation
                                 cameraDistance = 8 * density
@@ -390,9 +394,10 @@ fun FlashcardScreen(
                                     val lastRating = prefs.getString("rating_${currentVocab.id}", null)
                                     if (lastRating != null && lastRating.isNotBlank()) {
                                         val (text, color, bg) = when (lastRating.lowercase()) {
-                                            "giỏi" -> Triple("Giỏi", Color(0xFF10AC84), Color(0xFF10AC84).copy(alpha = 0.15f))
-                                            "được" -> Triple("Được", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-                                            "yếu" -> Triple("Yếu", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
+                                            "easy", "giỏi" -> Triple("Easy", Color(0xFF10AC84), Color(0xFF10AC84).copy(alpha = 0.15f))
+                                            "good", "được" -> Triple("Good", Color(0xFF3B82F6), Color(0xFF3B82F6).copy(alpha = 0.15f))
+                                            "hard" -> Triple("Hard", Color(0xFFEF8C2D), Color(0xFFEF8C2D).copy(alpha = 0.15f))
+                                            "again", "yếu" -> Triple("Again", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
                                             else -> Triple(null, null, null)
                                         }
                                         if (text != null && color != null && bg != null) {
@@ -592,59 +597,71 @@ fun FlashcardScreen(
                             }
                         } else {
                             // BACK SIDE
+                            val backPrefs = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+                            val currentEF = backPrefs.getFloat("ease_factor_${currentVocab.id}", SM2Algorithm.DEFAULT_EASE_FACTOR.toFloat()).toDouble()
+                            val currentReps = backPrefs.getInt("repetitions_${currentVocab.id}", SM2Algorithm.DEFAULT_REPETITIONS)
+                            val currentInterval = backPrefs.getInt("interval_${currentVocab.id}", SM2Algorithm.DEFAULT_INTERVAL)
+                            val nextReviewMs = backPrefs.getLong("next_review_${currentVocab.id}", 0L)
+
+                            val scrollState = rememberScrollState()
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .graphicsLayer {
                                         rotationY = 180f
                                     }
-                                    .padding(24.dp),
+                                    .verticalScroll(scrollState)
+                                    .padding(20.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = currentVocab.word,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    IconButton(
-                                        onClick = {
-                                            tts?.speak(currentVocab.word, TextToSpeech.QUEUE_FLUSH, null, null)
-                                        },
-                                        modifier = Modifier
-                                            .background(
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-                                                CircleShape
-                                            )
-                                            .size(30.dp)
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                // Word + Speaker
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                                            contentDescription = "Phát âm",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(16.dp)
+                                        Text(
+                                            text = currentVocab.word,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            fontWeight = FontWeight.SemiBold
                                         )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        IconButton(
+                                            onClick = {
+                                                tts?.speak(currentVocab.word, TextToSpeech.QUEUE_FLUSH, null, null)
+                                            },
+                                            modifier = Modifier
+                                                .background(
+                                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                                                    CircleShape
+                                                )
+                                                .size(30.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                                                contentDescription = "Phát âm",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
                                     }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text(
+                                        text = currentVocab.meaning,
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
 
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Text(
-                                    text = currentVocab.meaning,
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(24.dp))
-
+                                // Example card
                                 Card(
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -669,7 +686,72 @@ fun FlashcardScreen(
                                     }
                                 }
 
-                                Spacer(modifier = Modifier.height(24.dp))
+                                // ─── SRS SM-2 Info Card ───
+                                Card(
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.06f)
+                                    ),
+                                    shape = RoundedCornerShape(14.dp),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(
+                                            text = "🧠 Spaced Repetition (SM-2)",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            // Ease Factor
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(
+                                                    text = String.format("%.2f", currentEF),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Text(
+                                                    text = "Hệ số dễ",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                            // Repetitions
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(
+                                                    text = "$currentReps",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Text(
+                                                    text = "Số lần ôn",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                            // Next Review
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(
+                                                    text = if (nextReviewMs > 0L) SM2Algorithm.formatNextReviewFromMs(nextReviewMs) else "Mới",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Text(
+                                                    text = "Ôn tiếp theo",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
 
                                 Text(
                                     "Chạm để lật lại",
@@ -681,13 +763,144 @@ fun FlashcardScreen(
                     }
                 }
 
-                // ─── Actions Buttons & Double Arrows ──────────
+                // ─── SM-2 Rating Buttons & Navigation ──────────
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 20.dp)
+                        .padding(bottom = 16.dp)
                 ) {
+                    // SM-2 Rating Buttons Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Again button
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Button(
+                                onClick = { viewModel.reviewCardPersistent(currentVocab.id, "again") },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFEF4444)
+                                ),
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Again",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color.White
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text("1.5 phút", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+
+                        // Hard button
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            val hardPreviewResult = remember(currentVocab.id) {
+                                val p = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+                                val ef = p.getFloat("ease_factor_${currentVocab.id}", SM2Algorithm.DEFAULT_EASE_FACTOR.toFloat()).toDouble()
+                                val reps = p.getInt("repetitions_${currentVocab.id}", SM2Algorithm.DEFAULT_REPETITIONS)
+                                val interval = p.getInt("interval_${currentVocab.id}", SM2Algorithm.DEFAULT_INTERVAL)
+                                SM2Algorithm.calculate(SM2Algorithm.Rating.HARD, ef, reps, interval)
+                            }
+                            Button(
+                                onClick = { viewModel.reviewCardPersistent(currentVocab.id, "hard") },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFEF8C2D)
+                                ),
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Hard",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color.White
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(SM2Algorithm.formatNextReview(SM2Algorithm.Rating.HARD, hardPreviewResult.interval), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+
+                        // Good button
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            val goodPreviewResult = remember(currentVocab.id) {
+                                val p = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+                                val ef = p.getFloat("ease_factor_${currentVocab.id}", SM2Algorithm.DEFAULT_EASE_FACTOR.toFloat()).toDouble()
+                                val reps = p.getInt("repetitions_${currentVocab.id}", SM2Algorithm.DEFAULT_REPETITIONS)
+                                val interval = p.getInt("interval_${currentVocab.id}", SM2Algorithm.DEFAULT_INTERVAL)
+                                SM2Algorithm.calculate(SM2Algorithm.Rating.GOOD, ef, reps, interval)
+                            }
+                            Button(
+                                onClick = { viewModel.reviewCardPersistent(currentVocab.id, "good") },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF3B82F6)
+                                ),
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Good",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color.White
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(SM2Algorithm.formatNextReview(SM2Algorithm.Rating.GOOD, goodPreviewResult.interval), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+
+                        // Easy button
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            val easyPreviewResult = remember(currentVocab.id) {
+                                val p = context.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+                                val ef = p.getFloat("ease_factor_${currentVocab.id}", SM2Algorithm.DEFAULT_EASE_FACTOR.toFloat()).toDouble()
+                                val reps = p.getInt("repetitions_${currentVocab.id}", SM2Algorithm.DEFAULT_REPETITIONS)
+                                val interval = p.getInt("interval_${currentVocab.id}", SM2Algorithm.DEFAULT_INTERVAL)
+                                SM2Algorithm.calculate(SM2Algorithm.Rating.EASY, ef, reps, interval)
+                            }
+                            Button(
+                                onClick = { viewModel.reviewCardPersistent(currentVocab.id, "easy") },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF10AC84)
+                                ),
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Easy",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color.White
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(SM2Algorithm.formatNextReview(SM2Algorithm.Rating.EASY, easyPreviewResult.interval), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Navigation Row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -699,87 +912,12 @@ fun FlashcardScreen(
                             Text("TRƯỚC", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                         }
 
-                        // Circular Spaced Repetition Buttons: 20 (Yếu), 50 (Được), 80 (Giỏi)
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
-                        ) {
-                            // Circular Button 20 (Yếu)
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(52.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.errorContainer)
-                                        .border(1.5.dp, MaterialTheme.colorScheme.error, CircleShape)
-                                        .clickable { viewModel.reviewCardPersistent(currentVocab.id, "yếu") },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "20",
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("Yếu", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-
-                            // Circular Button 50 (Được)
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(52.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primaryContainer)
-                                        .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                                        .clickable { viewModel.reviewCardPersistent(currentVocab.id, "được") },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "50",
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("Được", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-
-                            // Circular Button 80 (Giỏi)
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(52.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.tertiaryContainer)
-                                        .border(1.5.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
-                                        .clickable { viewModel.reviewCardPersistent(currentVocab.id, "giỏi") },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "80",
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.tertiary
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("Giỏi", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
+                        Text(
+                            "${currentIndex + 1} / $totalCount",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
                         TextButton(
                             onClick = { viewModel.nextCard() }
