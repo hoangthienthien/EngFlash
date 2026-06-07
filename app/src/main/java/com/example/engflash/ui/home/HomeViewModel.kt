@@ -52,10 +52,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         var unlearned = 0
 
         for (vocab in list) {
-            if (!vocab.isFavorite) {
-                unlearned++
-                continue
-            }
             val rating = prefs.getString("rating_${vocab.id}", null)
             val level = if (rating != null) {
                 rating.lowercase()
@@ -76,8 +72,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             when (level) {
-                "giỏi", "easy" -> mastered++
-                "được", "good", "hard" -> reviewing++
+                "giỏi", "easy", "good", "được" -> mastered++
+                "hard" -> {
+                    reviewing++
+                    unlearned++
+                }
                 else -> unlearned++
             }
         }

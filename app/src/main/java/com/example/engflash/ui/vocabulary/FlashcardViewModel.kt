@@ -353,6 +353,16 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             val flow = getFlashcardByTopicUseCase(topic)
             val list = flow.first()
+            val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+            val editor = prefs.edit()
+            for (vocab in list) {
+                editor.remove("ease_factor_${vocab.id}")
+                editor.remove("repetitions_${vocab.id}")
+                editor.remove("interval_${vocab.id}")
+                editor.remove("next_review_${vocab.id}")
+                editor.remove("rating_${vocab.id}")
+            }
+            editor.commit()
             for (vocab in list) {
                 updateVocabularyLearnedStatusUseCase(vocab.id, false, 0L, "")
             }

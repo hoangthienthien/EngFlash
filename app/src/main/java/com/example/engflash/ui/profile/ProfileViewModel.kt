@@ -52,29 +52,29 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 for (vocab in list) {
                     if (vocab.isFavorite) {
                         favoriteCount++
-                        
-                        val rating = prefs.getString("rating_${vocab.id}", null)
-                        val level = if (rating != null) {
-                            rating.lowercase()
+                    }
+                    
+                    val rating = prefs.getString("rating_${vocab.id}", null)
+                    val level = if (rating != null) {
+                        rating.lowercase()
+                    } else {
+                        val nextReview = prefs.getLong("next_review_${vocab.id}", 0L)
+                        if (nextReview == 0L) {
+                            "unlearned"
                         } else {
-                            val nextReview = prefs.getLong("next_review_${vocab.id}", 0L)
-                            if (nextReview == 0L) {
-                                "unlearned"
+                            val diff = nextReview - now
+                            if (diff > 2 * 24 * 60 * 60 * 1000L) {
+                                "easy"
+                            } else if (diff > 5 * 60 * 1000L) {
+                                "good"
                             } else {
-                                val diff = nextReview - now
-                                if (diff > 2 * 24 * 60 * 60 * 1000L) {
-                                    "easy"
-                                } else if (diff > 5 * 60 * 1000L) {
-                                    "good"
-                                } else {
-                                    "again"
-                                }
+                                "again"
                             }
                         }
+                    }
 
-                        if (level in listOf("giỏi", "easy", "good")) {
-                            learnedCount++
-                        }
+                    if (level in listOf("giỏi", "easy", "good", "được")) {
+                        learnedCount++
                     }
                 }
 
