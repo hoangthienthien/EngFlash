@@ -132,6 +132,7 @@ private fun QuizContent(
 
     val context = androidx.compose.ui.platform.LocalContext.current
     val application = context.applicationContext as com.example.engflash.EngFlashApplication
+    val soundManager = application.soundManager
 
     LaunchedEffect(showResults) {
         if (showResults) {
@@ -144,6 +145,13 @@ private fun QuizContent(
                 .commit()
             // Ghi nhận ngày học vào streak
             application.streakManager.recordStudyDay()
+            
+            // Play sound when finished
+            if (score == questions.size && questions.isNotEmpty()) {
+                soundManager.playAchievementSound()
+            } else {
+                soundManager.playCompleteSound()
+            }
         }
     }
 
@@ -287,6 +295,9 @@ private fun QuizContent(
                                     isAnswered = true
                                     if (index == currentQuestion.correctAnswerIndex) {
                                         score++
+                                        soundManager.playCorrectSound()
+                                    } else {
+                                        soundManager.playWrongSound()
                                     }
                                 },
                             shape = RoundedCornerShape(14.dp),
