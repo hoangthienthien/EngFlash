@@ -76,8 +76,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             when (level) {
-                "giỏi", "easy" -> mastered++
-                "được", "good", "hard" -> reviewing++
+                "giỏi", "easy", "good", "được" -> mastered++
+                "hard" -> reviewing++
                 else -> unlearned++
             }
         }
