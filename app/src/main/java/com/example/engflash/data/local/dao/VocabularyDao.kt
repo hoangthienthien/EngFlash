@@ -83,4 +83,7 @@ interface VocabularyDao {
 
     @Query("SELECT * FROM vocabularies WHERE isFavorite = 1 ORDER BY id ASC")
     fun getAllFlashcards(): Flow<List<VocabularyEntity>>
+
+    @Query("UPDATE vocabularies SET isLearned = 0, isFavorite = 0")
+    suspend fun resetAllVocabularyProgress()
 }

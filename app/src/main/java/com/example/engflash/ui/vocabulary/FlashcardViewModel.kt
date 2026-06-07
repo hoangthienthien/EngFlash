@@ -1,5 +1,7 @@
 package com.example.engflash.ui.vocabulary
 
+import com.example.engflash.util.SM2Algorithm
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -59,10 +61,9 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
             val mastered = list.count { vocab ->
                 val rating = prefs.getString("rating_${vocab.id}", null)
                 if (rating != null) {
-                    rating.lowercase() == "giỏi"
+                    rating.lowercase() in listOf("good", "easy", "giỏi")
                 } else {
                     val nextReview = prefs.getLong("next_review_${vocab.id}", 0L)
-                    // If next review is more than 2 days in the future, it was likely rated "Giỏi"
                     nextReview - now > 2 * 24 * 60 * 60 * 1000L
                 }
             }
@@ -132,10 +133,21 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         loadJob = viewModelScope.launch {
             val flow = getFlashcardByTopicUseCase(topic)
             flow.collect { list ->
+                val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
+                val now = System.currentTimeMillis()
+                val filteredList = list.filter { vocab ->
+                    val rating = prefs.getString("rating_${vocab.id}", null)
+                    val nextReview = prefs.getLong("next_review_${vocab.id}", 0L)
+                    if (rating?.lowercase() == "again") {
+                        now >= nextReview // Chỉ hiển thị lại khi đã đến hoặc quá hạn 90 giây ôn tập
+                    } else {
+                        true // Các nút khác (Hard/Good/Easy hoặc chưa học) thì luôn luôn hiển thị
+                    }
+                }
                 _uiState.value = _uiState.value.copy(
-                    vocabularies = list,
+                    vocabularies = filteredList,
                     isLoading = false,
-                    currentIndex = if (_uiState.value.currentIndex >= list.size) 0 else _uiState.value.currentIndex
+                    currentIndex = if (_uiState.value.currentIndex >= filteredList.size) 0 else _uiState.value.currentIndex
                 )
             }
         }
@@ -173,39 +185,43 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
 
     /**
      * Review card in PRACTICE mode — words stay in the list (persistent).
-     * SRS interval is still recorded. The word is marked as "reviewed" visually.
+     * Sử dụng thuật toán SM-2 để tính toán khoảng cách ôn tập.
      */
     fun reviewCardPersistent(vocabId: Int, rating: String) {
         // Ghi nhận ngày học
         app.streakManager.recordStudyDay()
 
         val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
-        val now = System.currentTimeMillis()
-        val delayMs = when (rating.lowercase()) {
-            "yếu" -> {
-                soundManager.playWrongSound()
-                1000L * 90 // 1.5 minutes
-            }
-            "được" -> {
-                soundManager.playCorrectSound()
-                1000L * 60 * 15 // 15 minutes
-            }
-            "giỏi" -> {
-                soundManager.playCorrectSound()
-                1000L * 60 * 60 * 24 * 4 // 4 days
-            }
-            else -> 0L
+
+        // Đọc thông số SM-2 hiện tại từ SharedPreferences
+        val currentEF = prefs.getFloat("ease_factor_$vocabId", SM2Algorithm.DEFAULT_EASE_FACTOR.toFloat()).toDouble()
+        val currentReps = prefs.getInt("repetitions_$vocabId", SM2Algorithm.DEFAULT_REPETITIONS)
+        val currentInterval = prefs.getInt("interval_$vocabId", SM2Algorithm.DEFAULT_INTERVAL)
+
+        // Tính toán SM-2
+        val sm2Rating = SM2Algorithm.Rating.fromString(rating)
+        val result = SM2Algorithm.calculate(sm2Rating, currentEF, currentReps, currentInterval)
+
+        // Phát âm thanh phản hồi
+        if (sm2Rating == SM2Algorithm.Rating.AGAIN) {
+            soundManager.playWrongSound()
+        } else {
+            soundManager.playCorrectSound()
         }
-        val nextReview = now + delayMs
+
+        // Lưu kết quả SM-2 vào SharedPreferences
         prefs.edit()
-            .putLong("next_review_$vocabId", nextReview)
+            .putLong("next_review_$vocabId", result.nextReviewMs)
             .putString("rating_$vocabId", rating.lowercase())
+            .putFloat("ease_factor_$vocabId", result.easeFactor.toFloat())
+            .putInt("repetitions_$vocabId", result.repetitions)
+            .putInt("interval_$vocabId", result.interval)
             .apply()
 
-        // Update database: yếu = false (unlearned/retry), được/giỏi = true (learned)
-        val isLearned = rating.lowercase() == "được" || rating.lowercase() == "giỏi"
+        // Update database: Again = false (unlearned/retry), Hard/Good/Easy = true (learned)
+        val isLearned = sm2Rating != SM2Algorithm.Rating.AGAIN
         viewModelScope.launch {
-            updateVocabularyLearnedStatusUseCase(vocabId, isLearned, nextReview, rating.lowercase())
+            updateVocabularyLearnedStatusUseCase(vocabId, isLearned, result.nextReviewMs, rating.lowercase())
         }
 
         // Mark as reviewed (for visual indicator) but DO NOT remove from list
@@ -230,38 +246,43 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
 
     /**
      * Legacy reviewCard — used by the old flow. Removes word from the list after review.
+     * Cũng sử dụng thuật toán SM-2.
      */
     fun reviewCard(vocabId: Int, rating: String) {
         // Ghi nhận ngày học
         app.streakManager.recordStudyDay()
 
         val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
-        val now = System.currentTimeMillis()
-        val delayMs = when (rating.lowercase()) {
-            "yếu" -> {
-                soundManager.playWrongSound()
-                1000L * 90 // 1.5 minutes
-            }
-            "được" -> {
-                soundManager.playCorrectSound()
-                1000L * 60 * 15 // 15 minutes
-            }
-            "giỏi" -> {
-                soundManager.playCorrectSound()
-                1000L * 60 * 60 * 24 * 4 // 4 days (3-5 days range)
-            }
-            else -> 0L
+
+        // Đọc thông số SM-2 hiện tại
+        val currentEF = prefs.getFloat("ease_factor_$vocabId", SM2Algorithm.DEFAULT_EASE_FACTOR.toFloat()).toDouble()
+        val currentReps = prefs.getInt("repetitions_$vocabId", SM2Algorithm.DEFAULT_REPETITIONS)
+        val currentInterval = prefs.getInt("interval_$vocabId", SM2Algorithm.DEFAULT_INTERVAL)
+
+        // Tính toán SM-2
+        val sm2Rating = SM2Algorithm.Rating.fromString(rating)
+        val result = SM2Algorithm.calculate(sm2Rating, currentEF, currentReps, currentInterval)
+
+        // Phát âm thanh phản hồi
+        if (sm2Rating == SM2Algorithm.Rating.AGAIN) {
+            soundManager.playWrongSound()
+        } else {
+            soundManager.playCorrectSound()
         }
-        val nextReview = now + delayMs
+
+        // Lưu kết quả SM-2
         prefs.edit()
-            .putLong("next_review_$vocabId", nextReview)
+            .putLong("next_review_$vocabId", result.nextReviewMs)
             .putString("rating_$vocabId", rating.lowercase())
+            .putFloat("ease_factor_$vocabId", result.easeFactor.toFloat())
+            .putInt("repetitions_$vocabId", result.repetitions)
+            .putInt("interval_$vocabId", result.interval)
             .apply()
 
-        // Update database: yếu = false (unlearned/retry), được/giỏi = true (learned)
-        val isLearned = rating.lowercase() == "được" || rating.lowercase() == "giỏi"
+        // Update database: Again = false, others = true
+        val isLearned = sm2Rating != SM2Algorithm.Rating.AGAIN
         viewModelScope.launch {
-            updateVocabularyLearnedStatusUseCase(vocabId, isLearned, nextReview, rating.lowercase())
+            updateVocabularyLearnedStatusUseCase(vocabId, isLearned, result.nextReviewMs, rating.lowercase())
         }
 
         // To make it feel instantaneous, remove it from the local state list immediately
