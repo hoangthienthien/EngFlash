@@ -38,7 +38,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
             initialValue = emptyList()
         )
 
-    // ─── Flashcard Practice Topics (topics that have isFavorite words) ───
+    // ─── Chủ đề Luyện tập Flashcard (các chủ đề có từ được đánh dấu yêu thích) ───
     val flashcardTopics: StateFlow<List<String>> = getFlashcardTopicsUseCase()
         .stateIn(
             scope = viewModelScope,
@@ -74,7 +74,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _uiState = MutableStateFlow(FlashcardUiState())
     val uiState: StateFlow<FlashcardUiState> = _uiState.asStateFlow()
 
-    // Track which vocab IDs have been reviewed in current session
+    // Theo dõi các ID từ vựng đã được ôn tập trong phiên học hiện tại
     private val _reviewedIds = MutableStateFlow<Set<Int>>(emptySet())
     val reviewedIds: StateFlow<Set<Int>> = _reviewedIds.asStateFlow()
 
@@ -90,7 +90,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
                 "Favorites" -> getFavoriteVocabulariesUseCase()
                 else -> getVocabulariesByTopicUseCase(filter)
             }
-            // Load data ONCE only — no continuous collection so removals stick
+            // Chỉ tải dữ liệu MỘT LẦN duy nhất — không thu thập liên tục để việc xóa từ có tác dụng tức thì
             val list = flow.first()
             val prefs = app.getSharedPreferences("engflash_prefs", android.content.Context.MODE_PRIVATE)
             val now = System.currentTimeMillis()
@@ -106,7 +106,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    // Used by VocabularyListScreen — loads ALL words in topic, no spaced repetition filter
+    // Được sử dụng bởi VocabularyListScreen — tải TOÀN BỘ từ vựng trong chủ đề, không lọc theo lặp lại ngắt quãng
     fun loadTopic(topic: String) {
         loadJob?.cancel()
         _uiState.value = _uiState.value.copy(isLoading = true, selectedFilter = topic)
@@ -123,8 +123,8 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     /**
-     * Load flashcard words for a specific topic (only isFavorite = true).
-     * Used by the new Practice flow — words persist and are NOT removed after review.
+     * Tải các từ vựng flashcard cho một chủ đề cụ thể (chỉ các từ có isFavorite = true).
+     * Được sử dụng bởi luồng Luyện tập mới — từ vựng được giữ lại trong danh sách và KHÔNG bị xóa sau khi ôn tập.
      */
     fun loadFlashcardByTopic(topic: String) {
         loadJob?.cancel()
@@ -184,7 +184,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     /**
-     * Review card in PRACTICE mode — words stay in the list (persistent).
+     * Ôn tập thẻ trong chế độ LUYỆN TẬP — các từ vẫn được giữ lại trong danh sách (kiên trì).
      * Sử dụng thuật toán SM-2 để tính toán khoảng cách ôn tập.
      */
     fun reviewCardPersistent(vocabId: Int, rating: String) {
@@ -224,16 +224,16 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
             updateVocabularyLearnedStatusUseCase(vocabId, isLearned, result.nextReviewMs, rating.lowercase())
         }
 
-        // Mark as reviewed (for visual indicator) but DO NOT remove from list
+        // Đánh dấu là đã ôn tập (để hiển thị chỉ báo trực quan) nhưng KHÔNG xóa khỏi danh sách
         _reviewedIds.value = _reviewedIds.value + vocabId
 
-        // Check if all reviewed
+        // Kiểm tra xem tất cả các từ đã được ôn tập chưa
         val allReviewed = _uiState.value.vocabularies.all { it.id in (_reviewedIds.value + vocabId) }
         if (allReviewed) {
             soundManager.playCompleteSound()
         }
 
-        // Move to next card
+        // Chuyển sang thẻ tiếp theo
         val list = _uiState.value.vocabularies
         if (list.isNotEmpty()) {
             val nextIndex = (_uiState.value.currentIndex + 1) % list.size
@@ -245,7 +245,7 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     /**
-     * Legacy reviewCard — used by the old flow. Removes word from the list after review.
+     * Hàm reviewCard cũ — được sử dụng bởi luồng cũ. Xóa từ khỏi danh sách ngay sau khi ôn tập.
      * Cũng sử dụng thuật toán SM-2.
      */
     fun reviewCard(vocabId: Int, rating: String) {
@@ -279,13 +279,13 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
             .putInt("interval_$vocabId", result.interval)
             .apply()
 
-        // Update database: Again = false, others = true
+        // Cập nhật cơ sở dữ liệu: Again = false, các mức khác = true
         val isLearned = sm2Rating != SM2Algorithm.Rating.AGAIN
         viewModelScope.launch {
             updateVocabularyLearnedStatusUseCase(vocabId, isLearned, result.nextReviewMs, rating.lowercase())
         }
 
-        // To make it feel instantaneous, remove it from the local state list immediately
+        // Để mang lại cảm giác phản hồi tức thì, xóa từ khỏi danh sách trạng thái cục bộ ngay lập tức
         val currentList = _uiState.value.vocabularies.toMutableList()
         val currentIndex = _uiState.value.currentIndex
         val indexToRemove = currentList.indexOfFirst { it.id == vocabId }
@@ -322,12 +322,12 @@ class FlashcardViewModel(application: Application) : AndroidViewModel(applicatio
         if (index in list.indices) {
             val vocab = list[index]
             
-            // Persist the change to DB (set isFavorite = false)
+            // Lưu thay đổi vào DB (đặt isFavorite = false)
             viewModelScope.launch {
                 toggleVocabularyFavoriteUseCase(vocab.id, false)
             }
             
-            // Immediately remove the card from the flashcard list in UI
+            // Xóa thẻ khỏi danh sách flashcard trên giao diện ngay lập tức
             val currentList = list.toMutableList()
             currentList.removeAt(index)
             val nextIndex = if (currentList.isEmpty()) 0 else index % currentList.size
