@@ -52,11 +52,7 @@ object SM2Algorithm {
 
     /**
      * Kết quả tính toán SM-2 sau khi người dùng đánh giá một thẻ.
-     *
-     * @param easeFactor Hệ số dễ mới
-     * @param repetitions Số lần lặp đúng liên tiếp mới
-     * @param interval Khoảng cách ôn tập tiếp theo (ngày)
-     * @param nextReviewMs Thời điểm ôn tập tiếp theo (epoch millis)
+     
      */
     data class SM2Result(
         val easeFactor: Double,
@@ -67,12 +63,6 @@ object SM2Algorithm {
 
     /**
      * Tính toán SM-2 dựa trên đánh giá của người dùng.
-     *
-     * @param rating Mức đánh giá chất lượng (Again/Hard/Good/Easy)
-     * @param currentEaseFactor Hệ số dễ hiện tại
-     * @param currentRepetitions Số lần lặp đúng liên tiếp hiện tại
-     * @param currentInterval Khoảng cách ôn tập hiện tại (ngày)
-     * @return SM2Result chứa các thông số mới
      */
     fun calculate(
         rating: Rating,
