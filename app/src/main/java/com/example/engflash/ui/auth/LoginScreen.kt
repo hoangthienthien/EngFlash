@@ -40,9 +40,9 @@ fun LoginScreen(
     viewModel: AuthViewModel,
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit
-) {
+) {//State Compose
     val loginState by viewModel.loginState.collectAsState()
-
+//state
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }

@@ -10,11 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-/**
- * CloudSyncManager handles background synchronization of user statistics,
- * quiz progress, and vocabulary status (learned/favorites/custom words)
- * with Firebase Firestore.
- */
+
 object CloudSyncManager {
 
     /**
